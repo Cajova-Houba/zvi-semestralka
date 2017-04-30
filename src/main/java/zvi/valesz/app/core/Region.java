@@ -8,11 +8,11 @@ package zvi.valesz.app.core;
 // todo: test
 public class Region {
 
-    private final int startX;
-    private final int startY;
-    private final int width;
-    private final int height;
-    private final int[][] image;
+    public final int startX;
+    public final int startY;
+    public final int width;
+    public final int height;
+    public final int[][] image;
 
     /**
      * Creates new region.
@@ -32,7 +32,7 @@ public class Region {
             throw new IllegalArgumentException("Wrong dimensions!");
         }
 
-        if(image.length <= 0 || image.length < (startX+width) || image[0].length <= 0 || image[0].length < (startY+height)) {
+        if(image[0].length <= 0 || image[0].length < (startX+width) || image.length <= 0 || image.length < (startY+height)) {
             throw new IllegalArgumentException("Wrong image!");
         }
 
@@ -48,9 +48,9 @@ public class Region {
      * @return True or false if the region is homogenic.
      */
     public boolean isHomogenic() {
-        int first = image[startX][startY];
-        for(int i = startX; i < startX + width; i++) {
-            for (int j = startY; j < startY+height; j++) {
+        int first = image[startY][startX];
+        for(int i = startY; i < startY + height; i++) {
+            for (int j = startX; j < startX+width; j++) {
                 if(first != image[i][j]) {
                     return false;
                 }
@@ -103,5 +103,27 @@ public class Region {
                 // bottom right region
                 new Region(startX+w1, startY+h1, w2, h2, image)
         };
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Region region = (Region) o;
+
+        if (startX != region.startX) return false;
+        if (startY != region.startY) return false;
+        if (width != region.width) return false;
+        return height == region.height;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = startX;
+        result = 31 * result + startY;
+        result = 31 * result + width;
+        result = 31 * result + height;
+        return result;
     }
 }
