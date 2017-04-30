@@ -258,4 +258,48 @@ public class RegionTest {
             assertTrue("Region is not homogenic!", r.isHomogenic());
         }
     }
+
+    @Test
+    public void testIsNeighbour() {
+        int[][] image = new int[100][100];
+        Region r1 = new Region(10,10,1,1,image);
+        Region rightNeighbour = new Region(11,10,1,1,image);
+        Region bottomNeighbour = new Region(10,11,1,1,image);
+        Region leftneighbour = new Region(9,10,1,1,image);
+        Region topNeighbour = new Region(10,9,1,1,image);
+
+        assertTrue("Wrong right neighbour!",r1.isNeighbour(rightNeighbour));
+        assertTrue("Wrong right neighbour!",rightNeighbour.isNeighbour(r1));
+
+        assertTrue("Wrong left neighbour!",r1.isNeighbour(leftneighbour));
+        assertTrue("Wrong left neighbour!",leftneighbour.isNeighbour(r1));
+
+        assertTrue("Wrong bottom neighbour!",r1.isNeighbour(bottomNeighbour));
+        assertTrue("Wrong bottom neighbour!",bottomNeighbour.isNeighbour(r1));
+
+        assertTrue("Wrong top neighbour!",r1.isNeighbour(topNeighbour));
+        assertTrue("Wrong top neighbour!",topNeighbour.isNeighbour(r1));
+    }
+
+    @Test
+    public void testIsNeighbour2() {
+        int[][] image = new int[100][100];
+        Region r1 = new Region(10,10,1,1,image);
+        Region topRight = new Region(11,9,1,1,image);
+        Region bottomLeft = new Region(11,11,1,1,image);
+        Region bottomRight = new Region(9,11,1,1,image);
+        Region topLeft = new Region(9,11,1,1,image);
+
+        assertFalse("Wrong right neighbour!",r1.isNeighbour(topRight));
+        assertFalse("Wrong right neighbour!",topRight.isNeighbour(r1));
+
+        assertFalse("Wrong left neighbour!",r1.isNeighbour(bottomLeft));
+        assertFalse("Wrong left neighbour!",bottomLeft.isNeighbour(r1));
+
+        assertFalse("Wrong bottom neighbour!",r1.isNeighbour(bottomRight));
+        assertFalse("Wrong bottom neighbour!",bottomRight.isNeighbour(r1));
+
+        assertFalse("Wrong top neighbour!",r1.isNeighbour(topLeft));
+        assertFalse("Wrong top neighbour!",topLeft.isNeighbour(r1));
+    }
 }

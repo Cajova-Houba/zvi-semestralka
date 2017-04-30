@@ -105,6 +105,30 @@ public class Region {
         };
     }
 
+    /**
+     * Returns true if the region is a neighbour of this region.
+     * Two regions are neighbours if one these conditions is ture:
+     *     x1 = x2 && (y1 - y2 = h2 || y2 - y1 = h1)
+     *     y1 = y2 && (x1 - x2 = w2 || x2 - x1 = h1)
+     *
+     * Image data are ignored by this method.
+     *
+     * @param region Other region.
+     * @return True or false.
+     */
+    public boolean isNeighbour(Region region) {
+        boolean topBottom = (startX == region.startX) && (
+                (startY - region.startY == region.height)
+                || (region.startY - startY == height)
+        );
+        boolean leftRight = (startY == region.startY) && (
+                (startX - region.startX == region.width)
+                || (region.startX - startX == width)
+        );
+
+        return topBottom || leftRight;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
