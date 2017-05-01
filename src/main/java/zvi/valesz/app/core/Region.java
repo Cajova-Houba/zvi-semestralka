@@ -8,10 +8,13 @@ package zvi.valesz.app.core;
 // todo: test
 public class Region {
 
+    public static final int THRESHOLD = 1;
+
     public final int startX;
     public final int startY;
     public final int width;
     public final int height;
+    public boolean marked;
     public final int[][] image;
 
     /**
@@ -24,6 +27,7 @@ public class Region {
      * @param image "Pointer" to the whole image.
      */
     public Region(int startX, int startY, int width, int height, int[][] image) {
+        marked = false;
         if(startX < 0 || startY < 0) {
             throw new IllegalArgumentException("Wrong start position!");
         }
@@ -47,6 +51,7 @@ public class Region {
      * Returns true if every data pixel in this region has same value.
      * @return True or false if the region is homogenic.
      */
+    // todo: use threshold
     public boolean isHomogenic() {
         int first = image[startY][startX];
         for(int i = startY; i < startY + height; i++) {
@@ -129,6 +134,44 @@ public class Region {
         return topBottom || leftRight;
     }
 
+    /**
+     * Returns true if this region can be merged with the other one. That can be done only if
+     * the merged region would be still homogenic.
+     * @param r Other region.
+     * @return True or false.
+     */
+    public boolean canMerge(Region r) {
+        int thisMin = Integer.MAX_VALUE;
+        int thisMax = Integer.MIN_VALUE;
+        int otherMin = Integer.MAX_VALUE;
+        int otherMax = Integer.MIN_VALUE;
+
+        for(int i = startY; i < startY + height; i++) {
+            for (int j = startX; j < startX+width; j++) {
+                if(image[i][j] > thisMax) {
+                    thisMax = image[i][j];
+                }
+
+                if(image[i][j] < thisMin) {
+                    thisMin = image[i][j];
+                }
+            }
+        }
+        for(int i = r.startY; i < r.startY + r.height; i++) {
+            for (int j = r.startX; j < r.startX + r.width; j++) {
+                if(r.image[i][j] > otherMax) {
+                    otherMax = r.image[i][j];
+                }
+
+                if(r.image[i][j] < otherMin) {
+                    otherMin = r.image[i][j];
+                }
+            }
+        }
+
+        return Math.abs(thisMax - otherMin) < Region.THRESHOLD && Math.abs(otherMax - thisMin) < Region.THRESHOLD;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -150,4 +193,5 @@ public class Region {
         result = 31 * result + height;
         return result;
     }
+
 }

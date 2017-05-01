@@ -2,10 +2,7 @@ package zvi.valesz.app.core;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -301,5 +298,98 @@ public class RegionTest {
 
         assertFalse("Wrong top neighbour!",r1.isNeighbour(topLeft));
         assertFalse("Wrong top neighbour!",topLeft.isNeighbour(r1));
+    }
+
+    @Test
+    public void testCanMerge() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,0},
+                new int[]{0,0,1,0},
+        };
+        int w = 4;
+        int h = 4;
+
+        Region r0 = new Region(0,0,2,1,image);
+        Region r1 = new Region(2,0,2,1,image);
+        assertTrue("Mergable regions!", r0.canMerge(r1));
+        assertTrue("Mergable regions!", r1.canMerge(r0));
+
+        r1 = new Region(1,1,1,1,image);
+        assertFalse("Non-mergable regions!", r0.canMerge(r1));
+        assertFalse("Non-mergable regions!", r1.canMerge(r0));
+
+        r0 = new Region(1,1,2,1,image);
+        r1 = new Region(2,2,1,2,image);
+        assertTrue("Mergable regions!", r0.canMerge(r1));
+        assertTrue("Mergable regions!", r1.canMerge(r0));
+    }
+
+    @Test
+    public void testMergeAlgorithm() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,0},
+                new int[]{0,0,1,0},
+        };
+        int w = 4;
+        int h = 4;
+
+        Region wholeImage = new Region(0,0,w,h,image);
+
+        List<Region> regionBuffer = new LinkedList<Region>();
+        List<Region> regions = new ArrayList<>();
+
+        // splitting
+        regionBuffer.add(wholeImage);
+        while(!regionBuffer.isEmpty()) {
+            Region tmp = regionBuffer.remove(0);
+            if(tmp.isHomogenic()) {
+                regions.add(tmp);
+            } else {
+                for(Region r : tmp.split()) {
+                    regionBuffer.add(r);
+                }
+            }
+        }
+
+        List<List<Region>> mergedRegions = new ArrayList<>();
+
+
+        // merging
+        while(!regions.isEmpty()) {
+            Region r = regions.remove(0);
+            List<Region> mergedRegion = new ArrayList<>();
+            List<Region> buffer = new LinkedList<>();
+            buffer.add(r);
+
+
+            // for every unmarked region of the list, go through it's neighbours
+            // and check if they can be merged together
+            while(!buffer.isEmpty()) {
+                // take region from buffer
+                Region bufferR = buffer.remove(0);
+                Iterator<Region> regIt = regions.iterator();
+
+                // go through remaining regions and add neighbours that can be merged to the buffer
+                while(regIt.hasNext()) {
+                    Region tmp = regIt.next();
+                    if(bufferR.isNeighbour(tmp) && bufferR.canMerge(tmp)) {
+                        buffer.add(tmp);
+                        regIt.remove();
+                    }
+                }
+
+                // add item from buffer to the result region list
+                mergedRegion.add(bufferR);
+            }
+
+            // add merged region to result list
+            mergedRegions.add(mergedRegion);
+        }
+
+        assertEquals("Wrong number of regions!", 2, mergedRegions.size());
     }
 }
