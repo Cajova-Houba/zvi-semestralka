@@ -8,7 +8,7 @@ package zvi.valesz.app.core;
 // todo: test
 public class Region {
 
-    public static final int THRESHOLD = 1;
+    public static final float DEFAULT_THRESHOLD = 0.5f;
 
     public final int startX;
     public final int startY;
@@ -17,8 +17,20 @@ public class Region {
     public boolean marked;
     public final int[][] image;
 
+    public final float threshold;
+
     /**
-     * Creates new region.
+     * Minimum value of this region.
+     */
+    public int minVal;
+
+    /**
+     * Maximum value of this region.
+     */
+    public int maxVal;
+
+    /**
+     * Creates new region with specified threshold.
      *
      * @param startX X coordinate of top left corner of this region in image.
      * @param startY Y coordinate of top left corner of this region in image.
@@ -26,7 +38,7 @@ public class Region {
      * @param height Height of this region.
      * @param image "Pointer" to the whole image.
      */
-    public Region(int startX, int startY, int width, int height, int[][] image) {
+    public Region(int startX, int startY, int width, int height, int[][] image, float threshold) {
         marked = false;
         if(startX < 0 || startY < 0) {
             throw new IllegalArgumentException("Wrong start position!");
@@ -45,23 +57,52 @@ public class Region {
         this.width = width;
         this.height = height;
         this.image = image;
+        this.threshold = threshold;
+
+        calculateMinMax();
     }
 
     /**
-     * Returns true if every data pixel in this region has same value.
+     * Creates new region.
+     *
+     * @param startX X coordinate of top left corner of this region in image.
+     * @param startY Y coordinate of top left corner of this region in image.
+     * @param width Width of this region.
+     * @param height Height of this region.
+     * @param image "Pointer" to the whole image.
+     */
+    public Region(int startX, int startY, int width, int height, int[][] image) {
+        this(startX, startY, width, height, image, DEFAULT_THRESHOLD);
+    }
+
+    private void calculateMinMax() {
+        int minTmp = Integer.MAX_VALUE;
+        int maxTmp = Integer.MIN_VALUE;
+
+        for(int i = startY; i < startY+height; i++) {
+            for (int j = startX; j <startX+width; j++) {
+                if(minTmp > image[i][j]) {
+                    minTmp = image[i][j];
+                }
+
+                if(maxTmp < image[i][j]) {
+                    maxTmp = image[i][j];
+                }
+            }
+        }
+
+        maxVal = maxTmp;
+        minVal = minTmp;
+    }
+
+
+    /**
+     * Returns true if difference between min and max value in this region is leesser or equal to threashold.
      * @return True or false if the region is homogenic.
      */
     // todo: use threshold
     public boolean isHomogenic() {
-        int first = image[startY][startX];
-        for(int i = startY; i < startY + height; i++) {
-            for (int j = startX; j < startX+width; j++) {
-                if(first != image[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return (maxVal - minVal) <= threshold;
     }
 
     /**
@@ -71,22 +112,24 @@ public class Region {
      * @return Regions.
      */
     public Region[] split() {
-        if(width == 1 && height == 2) {
-            return new Region[] {
-                    new Region(startX, startY,1,1, image),
-                    new Region(startX,startY+1,1,1,image)
-            };
-        }
-
-        if(width == 2 && height == 1) {
-            return new Region[] {
-                    new Region(startX, startY,1,1, image),
-                    new Region(startX+1,startY,1,1,image)
-            };
-        }
-
         if(width == 1 && height == 1) {
             return new Region[] {this};
+        }
+
+        if(width == 1) {
+            int h = height-1;
+            return new Region[] {
+                    new Region(startX, startY,1,1, image, threshold),
+                    new Region(startX,startY+1,1,h,image, threshold)
+            };
+        }
+
+        if(height == 1) {
+            int w = width-1;
+            return new Region[] {
+                    new Region(startX, startY,1,1, image, threshold),
+                    new Region(startX+1,startY,w,1,image, threshold)
+            };
         }
 
         // overcome problems with rounding
@@ -97,16 +140,16 @@ public class Region {
 
         return new Region[] {
                 // top left region
-                new Region(startX, startY, w1, h1, image),
+                new Region(startX, startY, w1, h1, image, threshold),
 
                 // top right region
-                new Region(startX+w1, startY, w2, h1, image),
+                new Region(startX+w1, startY, w2, h1, image, threshold),
 
                 // bottom left region
-                new Region(startX, startY+h1, w1, h2, image),
+                new Region(startX, startY+h1, w1, h2, image, threshold),
 
                 // bottom right region
-                new Region(startX+w1, startY+h1, w2, h2, image)
+                new Region(startX+w1, startY+h1, w2, h2, image, threshold)
         };
     }
 
@@ -122,11 +165,15 @@ public class Region {
      * @return True or false.
      */
     public boolean isNeighbour(Region region) {
-        boolean topBottom = (startX == region.startX) && (
+        boolean topBottom = (
+                    (startX <= region.startX && region.startX < startX+width) ||
+                    (region.startX <= startX && startX < region.startX+region.width)) && (
                 (startY - region.startY == region.height)
                 || (region.startY - startY == height)
         );
-        boolean leftRight = (startY == region.startY) && (
+        boolean leftRight = (
+                (startY <= region.startY && region.startY < startY+height) ||
+                (region.startY <= startY && startY < region.startY+region.height)) && (
                 (startX - region.startX == region.width)
                 || (region.startX - startX == width)
         );
@@ -141,35 +188,26 @@ public class Region {
      * @return True or false.
      */
     public boolean canMerge(Region r) {
-        int thisMin = Integer.MAX_VALUE;
-        int thisMax = Integer.MIN_VALUE;
-        int otherMin = Integer.MAX_VALUE;
-        int otherMax = Integer.MIN_VALUE;
+        int newMin = minVal < r.getMinVal() ? minVal : r.getMinVal();
+        int newMax = maxVal > r.getMaxVal() ? maxVal : r.getMaxVal();
 
-        for(int i = startY; i < startY + height; i++) {
-            for (int j = startX; j < startX+width; j++) {
-                if(image[i][j] > thisMax) {
-                    thisMax = image[i][j];
-                }
+        return Math.abs(newMax - newMin) <= threshold;
+    }
 
-                if(image[i][j] < thisMin) {
-                    thisMin = image[i][j];
-                }
-            }
-        }
-        for(int i = r.startY; i < r.startY + r.height; i++) {
-            for (int j = r.startX; j < r.startX + r.width; j++) {
-                if(r.image[i][j] > otherMax) {
-                    otherMax = r.image[i][j];
-                }
+    public int getMinVal() {
+        return minVal;
+    }
 
-                if(r.image[i][j] < otherMin) {
-                    otherMin = r.image[i][j];
-                }
-            }
-        }
+    public void setMinVal(int minVal) {
+        this.minVal = minVal;
+    }
 
-        return Math.abs(thisMax - otherMin) < Region.THRESHOLD && Math.abs(otherMax - thisMin) < Region.THRESHOLD;
+    public int getMaxVal() {
+        return maxVal;
+    }
+
+    public void setMaxVal(int maxVal) {
+        this.maxVal = maxVal;
     }
 
     @Override

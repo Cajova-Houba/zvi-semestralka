@@ -333,4 +333,5 @@ public class RegionTest {
 
         assertEquals("Wrong number of regions!", 2, mergedRegions.size());
     }
+
 }
