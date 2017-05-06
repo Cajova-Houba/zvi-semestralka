@@ -202,20 +202,8 @@ public class RegionTest {
         int h = 4;
 
         Region wholeImage = new Region(0,0,w,h,image);
-        List<Region> regionBuffer = new LinkedList<Region>();
-        List<Region> regions = new ArrayList<>();
-        regionBuffer.add(wholeImage);
 
-        while(!regionBuffer.isEmpty()) {
-            Region tmp = regionBuffer.remove(0);
-            if(tmp.isHomogenic()) {
-                regions.add(tmp);
-            } else {
-                for(Region r : tmp.split()) {
-                    regionBuffer.add(r);
-                }
-            }
-        }
+        List<Region> regions = Core.split(wholeImage);
 
         assertEquals("Wrong number of regions!", 13, regions.size());
         for(Region r : regions) {
@@ -339,56 +327,9 @@ public class RegionTest {
 
         Region wholeImage = new Region(0,0,w,h,image);
 
-        List<Region> regionBuffer = new LinkedList<Region>();
-        List<Region> regions = new ArrayList<>();
+        List<Region> regions = Core.split(wholeImage);
 
-        // splitting
-        regionBuffer.add(wholeImage);
-        while(!regionBuffer.isEmpty()) {
-            Region tmp = regionBuffer.remove(0);
-            if(tmp.isHomogenic()) {
-                regions.add(tmp);
-            } else {
-                for(Region r : tmp.split()) {
-                    regionBuffer.add(r);
-                }
-            }
-        }
-
-        List<List<Region>> mergedRegions = new ArrayList<>();
-
-
-        // merging
-        while(!regions.isEmpty()) {
-            Region r = regions.remove(0);
-            List<Region> mergedRegion = new ArrayList<>();
-            List<Region> buffer = new LinkedList<>();
-            buffer.add(r);
-
-
-            // for every unmarked region of the list, go through it's neighbours
-            // and check if they can be merged together
-            while(!buffer.isEmpty()) {
-                // take region from buffer
-                Region bufferR = buffer.remove(0);
-                Iterator<Region> regIt = regions.iterator();
-
-                // go through remaining regions and add neighbours that can be merged to the buffer
-                while(regIt.hasNext()) {
-                    Region tmp = regIt.next();
-                    if(bufferR.isNeighbour(tmp) && bufferR.canMerge(tmp)) {
-                        buffer.add(tmp);
-                        regIt.remove();
-                    }
-                }
-
-                // add item from buffer to the result region list
-                mergedRegion.add(bufferR);
-            }
-
-            // add merged region to result list
-            mergedRegions.add(mergedRegion);
-        }
+        List<List<Region>> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 2, mergedRegions.size());
     }
