@@ -1,11 +1,8 @@
 package zvi.valesz.app.main;
 
-import com.sun.scenario.effect.Merge;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -18,12 +15,11 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import zvi.valesz.app.core.Core;
 import zvi.valesz.app.core.region.MergedRegion;
-import zvi.valesz.app.core.utils.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
+// todo: use scroll pane or new window for source image
 public class Controller {
 
     @FXML
@@ -101,6 +97,7 @@ public class Controller {
      * @param numOfRegions
      */
     private void displaySegmentedImageInNewWindow(Image segmentedImage, float threshold, int numOfRegions) {
+        // todo: save button for image and maybe other data?
         final Stage dialog = new Stage();
         dialog.initModality(Modality.NONE);
 //            dialog.initOwner(primaryStage);

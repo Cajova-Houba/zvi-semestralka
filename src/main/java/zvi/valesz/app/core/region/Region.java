@@ -5,7 +5,7 @@ package zvi.valesz.app.core.region;
  *
  * Created by Zdenek Vales on 24.4.2017.
  */
-// todo: test
+// todo: constant for 4-neighbours or 8-neighbours
 public class Region {
 
     public static final float DEFAULT_THRESHOLD = 0.5f;

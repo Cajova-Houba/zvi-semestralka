@@ -19,6 +19,7 @@ import java.util.List;
  *
  * Created by Zdenek Vales on 6.5.2017.
  */
+// todo: use threads
 public class Core {
 
     /**
