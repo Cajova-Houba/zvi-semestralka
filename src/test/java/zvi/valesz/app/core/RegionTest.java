@@ -1,6 +1,8 @@
 package zvi.valesz.app.core;
 
 import org.junit.Test;
+import zvi.valesz.app.core.region.MergedRegion;
+import zvi.valesz.app.core.region.Region;
 
 import java.util.*;
 
@@ -329,7 +331,7 @@ public class RegionTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 2, mergedRegions.size());
     }

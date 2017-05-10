@@ -1,8 +1,12 @@
 package zvi.valesz.app.core;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import zvi.valesz.app.core.region.MergedRegion;
+import zvi.valesz.app.core.region.Region;
+import zvi.valesz.app.core.utils.FileUtils;
 
+
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -28,7 +32,7 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 2, mergedRegions.size());
         for(List<Region> mergedRegion : mergedRegions) {
@@ -52,7 +56,7 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 2, mergedRegions.size());
     }
@@ -73,7 +77,7 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 3, mergedRegions.size());
     }
@@ -94,7 +98,7 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 4, mergedRegions.size());
     }
@@ -111,7 +115,7 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 5, mergedRegions.size());
     }
@@ -132,9 +136,31 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 5, mergedRegions.size());
+    }
+
+    @Test
+    public void testRegionGrowing7() {
+        int[][] image = new int[][] {
+                new int[]{2,2,0,2,2},
+                new int[]{2,0,0,0,2},
+                new int[]{0,0,3,3,0},
+                new int[]{2,3,3,3,2},
+                new int[]{2,2,0,2,2},
+        };
+        int w = 5;
+        int h = 5;
+
+        Region wholeImage = new Region(0,0,w,h,image);
+
+        List<Region> regions = Core.split(wholeImage);
+
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertEquals("Wrong number of regions!", 8, mergedRegions.size());
+//        testPrintRegions(mergedRegions, w, h);
     }
 
     @Test
@@ -154,8 +180,118 @@ public class CoreTest {
 
         List<Region> regions = Core.split(wholeImage);
 
-        List<List<Region>> mergedRegions = Core.merge(regions);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
 
         assertEquals("Wrong number of regions!", 3, mergedRegions.size());
     }
+
+    @Test
+    public void testRegionGrowWithThreshold2() {
+        int[][] image = new int[][] {
+                new int[]{2,2,3,2,2,3},
+                new int[]{2,0,0,0,2,3},
+                new int[]{2,0,2,0,2,0},
+                new int[]{2,0,0,0,2,0},
+                new int[]{2,2,3,2,2,0},
+        };
+        int w = 6;
+        int h = 5;
+        float threshold = 1;
+
+        Region wholeImage = new Region(0,0,w,h,image, threshold);
+
+        List<Region> regions = Core.split(wholeImage);
+
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertEquals("Wrong number of regions!", 4, mergedRegions.size());
+
+        // test print
+//        testPrintRegions(mergedRegions, w, h);
+    }
+
+    @Test
+    public void testRegionGrowtFile() throws IOException {
+        String img1Name = "/test-img1.bmp";
+        int[][] image = FileUtils.loadImage(getResource(img1Name));
+        int w = image[0].length;
+        int h = image.length;
+        float threshold = 1;
+
+        Region wholeImage = new Region(0,0,w,h,image, threshold);
+
+        List<Region> regions = Core.split(wholeImage);
+
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertEquals("Wrong number of regions!", 5, mergedRegions.size());
+
+        // test print
+//        testPrintRegions(mergedRegions, w, h);
+    }
+
+    @Test
+    public void testRegionGrowtFile2() throws IOException {
+        String img1Name = "/test-img2.bmp";
+        int[][] image = FileUtils.loadImage(getResource(img1Name));
+        int w = image[0].length;
+        int h = image.length;
+        float threshold = 1;
+
+        Region wholeImage = new Region(0,0,w,h,image, threshold);
+
+        List<Region> regions = Core.split(wholeImage);
+
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertEquals("Wrong number of regions!", 4, mergedRegions.size());
+
+        // test print
+//        testPrintRegions(mergedRegions, w, h);
+    }
+
+    @Test
+    public void testRegionGrowtFileThreshold() throws IOException {
+        String img1Name = "/test-img3.bmp";
+        int[][] image = FileUtils.loadGreyImage(getResource(img1Name));
+        int w = image[0].length;
+        int h = image.length;
+        float threshold = 127;
+
+        Region wholeImage = new Region(0,0,w,h,image, threshold);
+
+        List<Region> regions = Core.split(wholeImage);
+
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertEquals("Wrong number of regions!", 3, mergedRegions.size());
+
+        // test print
+        testPrintRegions(mergedRegions, w, h);
+    }
+
+    private String getResource(String resourceName) {
+        return getClass().getResource(resourceName).getPath();
+    }
+
+    private void testPrintRegions(List<MergedRegion> mergedRegions, int w, int h) {
+        int[][] regionDisplay = new int[h][w];
+        for(MergedRegion mergedRegion : mergedRegions) {
+            for(Region r : mergedRegion) {
+                for(int i = r.startY; i < r.startY+r.height; i++) {
+                    for(int j = r.startX; j < r.startX+r.width; j++){
+                        regionDisplay[i][j] = mergedRegion.regionId;
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < h; i++) {
+            for(int j = 0; j < w; j++) {
+                System.out.print(regionDisplay[i][j]+" ");
+            }
+            System.out.print("\n");
+        }
+    }
+
+
 }

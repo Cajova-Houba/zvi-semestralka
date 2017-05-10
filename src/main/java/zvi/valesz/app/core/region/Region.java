@@ -1,4 +1,4 @@
-package zvi.valesz.app.core;
+package zvi.valesz.app.core.region;
 
 /**
  * A region in image.

@@ -1,5 +1,8 @@
 package zvi.valesz.app.core;
 
+import zvi.valesz.app.core.region.MergedRegion;
+import zvi.valesz.app.core.region.Region;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,13 +20,15 @@ public class Core {
      * @param regions
      * @return Merged regions. Each list is one independent region in image.
      */
-    public static List<List<Region>> merge(List<Region> regions) {
-        List<List<Region>> mergedRegions = new ArrayList<>();
+    public static List<MergedRegion> merge(List<Region> regions) {
+        List<MergedRegion> mergedRegions = new ArrayList<>();
+        int regCntr = 1;
 
         // merging
         while(!regions.isEmpty()) {
             Region r = regions.remove(0);
-            List<Region> mergedRegion = new ArrayList<>();
+            MergedRegion mergedRegion = new MergedRegion(regCntr);
+            regCntr++;
             List<Region> buffer = new LinkedList<>();
             buffer.add(r);
 
