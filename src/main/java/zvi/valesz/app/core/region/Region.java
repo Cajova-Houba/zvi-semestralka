@@ -95,12 +95,19 @@ public class Region {
         minVal = minTmp;
     }
 
+    /**
+     * Returns regionSize of this region.
+     *
+     * @return
+     */
+    public int getSize() {
+       return width*height;
+    }
 
     /**
      * Returns true if difference between min and max value in this region is leesser or equal to threashold.
      * @return True or false if the region is homogenic.
      */
-    // todo: use threshold
     public boolean isHomogenic() {
         return (maxVal - minVal) <= threshold;
     }

@@ -1,7 +1,13 @@
 package zvi.valesz.app.core;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import zvi.valesz.app.core.region.MergedRegion;
 import zvi.valesz.app.core.region.Region;
+import zvi.valesz.app.core.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,6 +20,19 @@ import java.util.List;
  * Created by Zdenek Vales on 6.5.2017.
  */
 public class Core {
+
+    /**
+     * Possible colors to be used when colorizing regions in image.
+     */
+    public static final Color[] possibleColors = new Color[] {
+            Color.CYAN,
+            Color.BLUE,
+            Color.GREEN,
+            Color.RED,
+            Color.PINK,
+            Color.YELLOW,
+            Color.ORANGE
+    };
 
     /**
      * Performs a merge operation over a collection of homogene regions.
@@ -85,5 +104,74 @@ public class Core {
         }
 
         return regions;
+    }
+
+    /**
+     * Colorizes regions in image except the region with the biggest regionSize (that one is assumed to be a background).
+     *
+     * @param image
+     * @param regions
+     * @return
+     */
+    public static Image colorize(Image image, List<MergedRegion> regions) {
+        int maxSize = Integer.MIN_VALUE;
+        int backgroundRegId = -1;
+
+        for(MergedRegion mr : regions) {
+            if(maxSize < mr.getRegionSize()) {
+                backgroundRegId = mr.regionId;
+                maxSize = mr.getRegionSize();
+            }
+        }
+
+        // do colorization
+        PixelReader imPixReader = image.getPixelReader();
+        WritableImage writableImage = new WritableImage(
+                imPixReader,
+                (int)image.getWidth(),
+                (int)image.getHeight()
+        );
+        PixelWriter imPixWriter = writableImage.getPixelWriter();
+        int clrCntr = 0;
+        for(MergedRegion mr : regions) {
+            if(mr.regionId != backgroundRegId) {
+                Color c = possibleColors[clrCntr];
+
+                for(Region r : mr) {
+                    for (int i = r.startY; i < r.startY+r.height; i++) {
+                        for (int j = r.startX; j < r.startX+r.width; j++) {
+                            imPixWriter.setColor(j,i,c);
+                        }
+                    }
+                }
+
+                clrCntr = (clrCntr + 1) % possibleColors.length;
+            }
+        }
+
+
+        return writableImage;
+    }
+
+    /**
+     * Performs region growing over image and colorizes found regions.
+     *
+     * @param image Image to perform region growing over.
+     * @return Image with colorized regions
+     */
+    public static Image performRegionGrowing(Image image, float threshold) {
+        // get int representation of image
+        int[][] intImg = FileUtils.imageToGeryInt(image);
+        int h = intImg.length;
+        int w = intImg[0].length;
+        Region wholeImage = new Region(0,0,w,h,intImg, threshold);
+        List<Region> regions = split(wholeImage);
+        List<MergedRegion> mergedRegions = merge(regions);
+
+        // todo: colorization
+        System.out.println("Regions found: "+mergedRegions.size());
+        image = colorize(image, mergedRegions);
+
+        return image;
     }
 }
