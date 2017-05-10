@@ -159,7 +159,7 @@ public class Core {
      * @param image Image to perform region growing over.
      * @return Image with colorized regions
      */
-    public static Image performRegionGrowing(Image image, float threshold) {
+    public static List<MergedRegion> performRegionGrowing(Image image, float threshold) {
         // get int representation of image
         int[][] intImg = FileUtils.imageToGeryInt(image);
         int h = intImg.length;
@@ -168,10 +168,6 @@ public class Core {
         List<Region> regions = split(wholeImage);
         List<MergedRegion> mergedRegions = merge(regions);
 
-        // todo: colorization
-        System.out.println("Regions found: "+mergedRegions.size());
-        image = colorize(image, mergedRegions);
-
-        return image;
+        return mergedRegions;
     }
 }
