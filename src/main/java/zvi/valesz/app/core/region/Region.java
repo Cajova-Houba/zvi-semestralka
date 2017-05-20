@@ -1,11 +1,13 @@
 package zvi.valesz.app.core.region;
 
+import zvi.valesz.app.core.Constants;
+
 /**
  * A region in image.
  *
  * Created by Zdenek Vales on 24.4.2017.
  */
-// todo: constant for 4-neighbours or 8-neighbours
+// todo: constant for 4-neighbours or 8-neighbours - 4 neighbours are used currently
 public class Region {
 
     public static final float DEFAULT_THRESHOLD = 0.5f;
@@ -18,6 +20,11 @@ public class Region {
     public final int[][] image;
 
     public final float threshold;
+
+    /**
+     * Whether 4 or 8 neighbours should be used.
+     */
+    public final int neighbours = Constants.NEIGHBOURS_4;
 
     /**
      * Minimum value of this region.
@@ -172,17 +179,30 @@ public class Region {
      * @return True or false.
      */
     public boolean isNeighbour(Region region) {
+        if(neighbours == Constants.NEIGHBOURS_4) {
+            return isNeighbour4(region);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the region is among 4 direct neighbours of this region.
+     * @param region Other region.
+     * @return True or false.
+     */
+    private boolean isNeighbour4(Region region) {
         boolean topBottom = (
-                    (startX <= region.startX && region.startX < startX+width) ||
-                    (region.startX <= startX && startX < region.startX+region.width)) && (
+                (startX <= region.startX && region.startX < startX+width) ||
+                        (region.startX <= startX && startX < region.startX+region.width)) && (
                 (startY - region.startY == region.height)
-                || (region.startY - startY == height)
+                        || (region.startY - startY == height)
         );
         boolean leftRight = (
                 (startY <= region.startY && region.startY < startY+height) ||
-                (region.startY <= startY && startY < region.startY+region.height)) && (
+                        (region.startY <= startY && startY < region.startY+region.height)) && (
                 (startX - region.startX == region.width)
-                || (region.startX - startX == width)
+                        || (region.startX - startX == width)
         );
 
         return topBottom || leftRight;

@@ -11,7 +11,6 @@ import static org.junit.Assert.*;
 /**
  * Created by Zdenek Vales on 24.4.2017.
  */
-// todo
 public class RegionTest {
 
     @Test

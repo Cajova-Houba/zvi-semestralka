@@ -270,6 +270,45 @@ public class CoreTest {
         testPrintRegions(mergedRegions, w, h);
     }
 
+    /**
+     * There are 5 regions in the image with colors:
+     * 255, 160, 64, 48, 0
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testRegionGrowtFileThreshold2() throws IOException {
+        String img1Name = "/threshold-test.bmp";
+        int[][] image = FileUtils.loadGreyImage(getResource(img1Name));
+        int w = image[0].length;
+        int h = image.length;
+
+        // 0 threshold
+        float threshold = 0;
+        Region wholeImage = new Region(0,0,w,h,image, threshold);
+        List<Region> regions = Core.split(wholeImage);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+        assertEquals("Wrong number of regions for threshold "+threshold+"!", 5, mergedRegions.size());
+
+        // 16 threshold
+        threshold = 16;
+        wholeImage = new Region(0,0,w,h,image, threshold);
+        regions = Core.split(wholeImage);
+        mergedRegions = Core.merge(regions);
+        assertEquals("Wrong number of regions for threshold "+threshold+"!", 4, mergedRegions.size());
+
+        // 48 threshold
+        threshold = 48;
+        wholeImage = new Region(0,0,w,h,image, threshold);
+        regions = Core.split(wholeImage);
+        mergedRegions = Core.merge(regions);
+        assertEquals("Wrong number of regions for threshold "+threshold+"!", 3, mergedRegions.size());
+
+
+        // test print
+//        testPrintRegions(mergedRegions, w, h);
+    }
+
     private String getResource(String resourceName) {
         return getClass().getResource(resourceName).getPath();
     }
