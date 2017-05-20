@@ -272,7 +272,7 @@ public class CoreTest {
 
     /**
      * There are 5 regions in the image with colors:
-     * 255, 160, 64, 48, 0
+     * 255, 150, 64, 48, 0
      *
      * @throws IOException
      */
@@ -303,6 +303,20 @@ public class CoreTest {
         regions = Core.split(wholeImage);
         mergedRegions = Core.merge(regions);
         assertEquals("Wrong number of regions for threshold "+threshold+"!", 3, mergedRegions.size());
+
+        // 86 threshold
+        threshold = 86;
+        wholeImage = new Region(0,0,w,h,image, threshold);
+        regions = Core.split(wholeImage);
+        mergedRegions = Core.merge(regions);
+        assertEquals("Wrong number of regions for threshold "+threshold+"!", 2, mergedRegions.size());
+
+        // 105 threshold
+        threshold = 105;
+        wholeImage = new Region(0,0,w,h,image, threshold);
+        regions = Core.split(wholeImage);
+        mergedRegions = Core.merge(regions);
+        assertEquals("Wrong number of regions for threshold "+threshold+"!", 1, mergedRegions.size());
 
 
         // test print
