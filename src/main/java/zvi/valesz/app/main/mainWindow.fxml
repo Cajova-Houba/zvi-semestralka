@@ -2,34 +2,48 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.TextField?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
       <!-- pane with configuration -->
       <right>
-         <VBox prefWidth="300">
-            <VBox alignment="TOP_LEFT">
-               <Label text="Ovládání" />
-               <Button fx:id="loadImageBtn" onAction="#onLoadImageClick" text="Načti obrázek" />
-               <Button text="Ulož obrázek" />
-            </VBox>
-            <!-- threshold -->
-            <VBox alignment="CENTER_LEFT">
-               <Label text="Segmentace" />
-               <FlowPane>
-                  <Label text="Threshold:" />
-                  <TextField fx:id="thresholdValLabel" text="0" />
-               </FlowPane>
-               <RadioButton text="Region growing" />
-               <Button onAction="#performSegmentation" text="Proveď segmentaci" />
-            </VBox>
+         <VBox prefWidth="300" spacing="30">
+             <VBox alignment="TOP_LEFT">
+                <Label text="Ovládání:" />
+                <Button fx:id="loadImageBtn" onAction="#onLoadImageClick" text="Načti obrázek" />
+             </VBox>
+             <!-- threshold -->
+             <VBox alignment="CENTER_LEFT" spacing="5">
+                <Label text="Narůstání oblastí:" />
+                <FlowPane>
+                   <Label text="Threshold:" />
+                   <TextField fx:id="thresholdValLabel" text="0" />
+                </FlowPane>
+                <Button onAction="#performSegmentation" text="Proveď segmentaci" />
+             </VBox>
+             <VBox spacing="5">
+                 <Label text="Ruční prahování:" />
+                 <FlowPane>
+                    <ListView maxHeight="100" maxWidth="100" prefHeight="100" prefWidth="100" />
+                    <Button disable="true" text="-" />
+                 </FlowPane>
+                 <FlowPane>
+                     <Label text="Práh: " />
+                     <TextField prefWidth="30" />
+                     <Label text="Hodnota: " />
+                     <TextField prefWidth="30" />
+                     <Button text="+" />
+                 </FlowPane>
+                 <Button text="Proveď ruční prahování" />
+             </VBox>
          </VBox>
       </right>
 
@@ -44,7 +58,7 @@
 
       <bottom>
           <FlowPane alignment="BOTTOM_CENTER">
-            <Label fx:id="feedback"/>
+            <Label fx:id="feedback" />
           </FlowPane>
       </bottom>
 
