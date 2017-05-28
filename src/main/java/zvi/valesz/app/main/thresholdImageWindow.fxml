@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.canvas.Canvas?>
+
+<BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.ThresholdImageController">
+    <left>
+        <VBox>
+            <Label text="Data" />
+            <FlowPane>
+                <Label text="Počet prahů:" />
+                <Label fx:id="thresholdCount"/>
+            </FlowPane>
+            <FlowPane>
+                <Label text="Velikost obrázků (px):" />
+                <Label fx:id="imageSize"/>
+            </FlowPane>
+        </VBox>
+    </left>
+    <center>
+        <VBox>
+            <Label text="Obraz po manuálním prahování:" />
+            <ImageView fx:id="thresholdImageView" />
+
+            <Label text="Histogram:"/>
+            <Canvas fx:id="histogram" />
+        </VBox>
+    </center>
+</BorderPane>

@@ -181,6 +181,75 @@ public class Core {
     }
 
     /**
+     * Performs manual thresholding over the image represented by integer array.
+     * If the threshold list is empty, original image is returned.
+     * If some value in the image is greater than every threshold, 255 is used.
+     *
+     * @param image Image.
+     * @param thresholds List of thresholds. Expected to have ascending order.
+     * @param statistics Map containing statistics data.
+     */
+    public static Image manualThresholding(Image image, List<Threshold> thresholds, Map<String, Object> statistics) {
+        int[][] intImage = ImageUtils.imageToGeryInt(image);
+        int[][] thresholdImage = manualThresholding(intImage, thresholds);
+        int h = intImage.length;
+        int w = intImage[0].length;
+        int[] histogram = calculateHistogram(thresholdImage);
+
+        statistics.put(Statistics.PIXEL_COUNT, w*h);
+        statistics.put(Statistics.THRESHOLD_COUNT, thresholds.size());
+        statistics.put(Statistics.HISTOGRAM, histogram);
+        WritableImage writableImage = new WritableImage(w,h);
+        PixelWriter imPixWriter = writableImage.getPixelWriter();
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                int val = thresholdImage[i][j];
+                imPixWriter.setColor(j,i,ImageUtils.getGreyColor(val));
+            }
+        }
+
+        return  writableImage;
+    }
+
+    /**
+     * Performs manual thresholding over the image represented by integer array.
+     * If the threshold list is empty, original image is returned.
+     * If some value in the image is greater than every threshold, 255 is used.
+     *
+     * @param image Image, array is expected to be in [height][width].
+     * @param thresholds List of thresholds. Expected to have ascending order.
+     */
+    public static int[][] manualThresholding(int[][] image, List<Threshold> thresholds) {
+        int h = image.length;
+        int w = image[0].length;
+        int[][] thresholdImage = new int[h][w];
+
+        if(thresholds.isEmpty()) {
+            return image;
+        }
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                boolean value = false;
+                for (Threshold t : thresholds) {
+                    if(image[i][j] < t.threshold) {
+                        thresholdImage[i][j] = t.newValue;
+                        value = true;
+                        break;
+                    }
+                }
+
+                // no value assigned => use max
+                if(!value) {
+                    thresholdImage[i][j] = ImageUtils.MAX_COLOR_VAL;
+                }
+            }
+        }
+
+        return thresholdImage;
+    }
+
+    /**
      * Calculates a grey scale histogram (256 values)
      *
      * @param image Histogram of this image will be calculated.

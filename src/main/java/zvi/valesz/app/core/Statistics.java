@@ -1,11 +1,13 @@
 package zvi.valesz.app.core;
 
+import java.util.HashMap;
+
 /**
  * Class containing statistic constants to be used in hash map.
  *
  * Created by Zdenek Vales on 28.5.2017.
  */
-public class Statistics {
+public class Statistics extends HashMap<String,Object> {
 
     /**
      * Threshold of the segmentation.
@@ -36,4 +38,9 @@ public class Statistics {
      * Int should be a value.
      */
     public static final String PIXEL_COUNT = "pixelCount";
+
+    /**
+     * Number of thresholds used for manual thresholding.
+     */
+    public static final String THRESHOLD_COUNT = "thresholdCount";
 }

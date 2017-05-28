@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * Created by Zdenek Vales on 28.5.2017.
  */
-public class ImgWindowController {
+public class SegmentedImgWindowController {
 
     @FXML
     private Label threshold;
@@ -33,7 +33,7 @@ public class ImgWindowController {
     @FXML
     private Canvas histogram;
 
-    public void init(Image segmentedImage, Map<String, Object> statistics) {
+    public void init(Image segmentedImage, Statistics statistics) {
         float t = (float)statistics.get(Statistics.THRESHOLD);
         int numOfRegions = (int)statistics.get(Statistics.MERGED_REGIONS_COUNT);
         int totalNumOfRegions = (int)statistics.get(Statistics.TOTAL_REGIONS_COUNT);

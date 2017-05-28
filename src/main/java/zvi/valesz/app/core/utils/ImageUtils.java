@@ -1,6 +1,7 @@
 package zvi.valesz.app.core.utils;
 
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 /**
  * A simple library class.
@@ -8,6 +9,29 @@ import javafx.scene.image.Image;
  * Created by Zdenek Vales on 28.5.2017.
  */
 public class ImageUtils {
+
+    /**
+     * Max value color can has (or one of the parts of color).
+     */
+    public static final int MAX_COLOR_VAL = 255;
+
+    /**
+     * Returns the grey color object created from value.
+     * @param val Value in range from 0 to 255.
+     * @return color.
+     */
+    public static Color getGreyColor(int val) {
+        if (val < 0) {
+            val = 0;
+        }
+
+        if (val > MAX_COLOR_VAL) {
+            val = MAX_COLOR_VAL;
+        }
+
+        double v = val / (double)MAX_COLOR_VAL;
+        return Color.color(v,v,v);
+    }
 
     /**
      * Converts javafx image to array of integers from 0 to 255.

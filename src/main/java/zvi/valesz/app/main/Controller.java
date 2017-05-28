@@ -1,13 +1,12 @@
 package zvi.valesz.app.main;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,13 +17,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import zvi.valesz.app.core.Core;
 import zvi.valesz.app.core.Statistics;
+import zvi.valesz.app.core.Threshold;
 import zvi.valesz.app.core.region.MergedRegion;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // todo: use scroll pane or new window for source image
 public class Controller {
@@ -40,6 +38,88 @@ public class Controller {
 
     @FXML
     private Label feedback;
+
+    @FXML
+    private TextField newThresh;
+
+    @FXML
+    private TextField threshVal;
+
+    @FXML
+    private ListView thresholdView;
+
+    /**
+     * Thresholds sorted by threshold value. Map is used to avoid duplicities.
+     */
+    private Map<Integer, Threshold> thresholdMap;
+
+    public void onAddThresholdClick() {
+        int nt = 0;
+        int tv = 0;
+
+        // load new threshold
+        String ntStr = newThresh.getText();
+        String tvStr = threshVal.getText();
+        try{
+            nt = Integer.parseInt(ntStr);
+        } catch (NullPointerException ex) {
+            displayFeedbackMessage("Není zadán práh.");
+            return;
+        } catch (NumberFormatException ex) {
+            displayFeedbackMessage(ntStr+" není platné číslo.");
+            return;
+        }
+        try {
+            tv = Integer.parseInt(tvStr);
+        } catch (NullPointerException ex) {
+            displayFeedbackMessage("Není zadána nová hodnota prahu.");
+            return;
+        } catch (NumberFormatException ex) {
+            displayFeedbackMessage(tvStr + " není platné číslo.");
+            return;
+        }
+
+        // check the threshold
+        Threshold threshold = new Threshold(nt,tv);
+        if(threshold.threshold < 0 || threshold.threshold > 256) {
+            displayFeedbackMessage("Práh "+threshold.threshold+" není v intervalu <0;255>.");
+            return;
+        }
+        if(threshold.newValue < 0 || threshold.newValue > 255) {
+            displayFeedbackMessage("Nová hodnota "+threshold.newValue+" není v intervalu <0;255>.");
+            return;
+        }
+
+        // add it to display
+        if(thresholdMap == null) {
+            thresholdMap = new TreeMap<>();
+        }
+        thresholdMap.put(threshold.threshold, threshold);
+        thresholdView.setItems(FXCollections.observableList(new ArrayList<>(thresholdMap.values())));
+    }
+
+    @FXML
+    public void performManualThresholding() {
+        Image image = imageView.getImage();
+        if (image == null) {
+            displayFeedbackMessage("Není žádný obrázek.");
+            return;
+        }
+        if(thresholdMap == null || thresholdMap.isEmpty()) {
+            displayFeedbackMessage("Nejsou zadány žádné prahy.");
+            return;
+        }
+
+        List<Threshold> thresholds = new ArrayList<>(thresholdMap.values());
+        Statistics statistics = new Statistics();
+        Image thresholdImage = Core.manualThresholding(image, thresholds, statistics);
+
+        try {
+            displayManualThresholdImageInNewWindowFxml(thresholdImage, statistics);
+        } catch (IOException e) {
+            displayFeedbackMessage("Chyba při zobrazování výsledku.");
+        }
+    }
 
     @FXML
     public void onLoadImageClick() {
@@ -61,7 +141,7 @@ public class Controller {
             return;
         }
 
-        Map<String, Object> statistics = new HashMap<>();
+        Statistics statistics = new Statistics();
         float threshold = 0f;
         String thText = thresholdValLabel.getText();
         try {
@@ -135,15 +215,27 @@ public class Controller {
     }
 
 
-    private void displaySegmentedImageInNewWindowFxml(Image segmentedImage, Map<String, Object> statistics) throws IOException {
+    private void displaySegmentedImageInNewWindowFxml(Image segmentedImage, Statistics statistics) throws IOException {
         final Stage newWindow = new Stage();
         newWindow.initModality(Modality.NONE);
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("imgWindow.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("segmentedImgWindow.fxml"));
         Parent root = loader.load();
 
-        newWindow.setTitle("Segmentovaný obraz");
+        newWindow.setTitle("Narůstání oblastí");
         newWindow.setScene(new Scene(root, 600,400));
-        loader.<ImgWindowController>getController().init(segmentedImage, statistics);
+        loader.<SegmentedImgWindowController>getController().init(segmentedImage, statistics);
+        newWindow.show();
+    }
+
+    public void displayManualThresholdImageInNewWindowFxml(Image thresholdImage, Statistics statistics) throws IOException {
+        final Stage newWindow = new Stage();
+        newWindow.initModality(Modality.NONE);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("thresholdImageWindow.fxml"));
+        Parent root = loader.load();
+
+        newWindow.setTitle("Ruční prahování");
+        newWindow.setScene(new Scene(root, 600,400));
+        loader.<ThresholdImageController>getController().init(thresholdImage, statistics);
         newWindow.show();
     }
 

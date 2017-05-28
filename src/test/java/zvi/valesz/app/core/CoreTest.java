@@ -425,22 +425,81 @@ public class CoreTest {
         };
         int w = 6;
         int h = 6;
-        List<int[]> thresholds = new ArrayList<>();
-        thresholds.add(new int[] {3,0});
-        thresholds.add(new int[] {7,5});
-        thresholds.add(new int[] {11,9});
+        List<Threshold> thresholds = new ArrayList<>();
+        thresholds.add(new Threshold(3,0));
+        thresholds.add(new Threshold(7,5));
+        thresholds.add(new Threshold(11,9));
 
-        int[][] thresholdImage = new int[h][w];
+        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
+
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
-                for(int[] threshold : thresholds) {
-                    if(image[i][j] < threshold[0]) {
-                        thresholdImage[i][j] = threshold[1];
-                        break;
-                    }
-                }
+                assertEquals("Wrong value on ("+j+","+i+")!", expectedImage[i][j], thresholdImage[i][j]);
             }
         }
+    }
+
+    /**
+     * Test with empty threshold list.
+     */
+    @Test
+    public void testManualThresholding3() {
+        int[][] image = new int[][] {
+                new int[]{0,0,2,1,0,2},
+                new int[]{1,3,6,5,4,1},
+                new int[]{2,4,7,9,3,0},
+                new int[]{0,5,8,9,6,2},
+                new int[]{1,6,3,4,5,0},
+                new int[]{2,0,1,2,0,1},
+        };
+        int[][] expectedImage = new int[][] {
+                new int[]{0,0,2,1,0,2},
+                new int[]{1,3,6,5,4,1},
+                new int[]{2,4,7,9,3,0},
+                new int[]{0,5,8,9,6,2},
+                new int[]{1,6,3,4,5,0},
+                new int[]{2,0,1,2,0,1},
+        };
+        int w = 6;
+        int h = 6;
+        List<Threshold> thresholds = new ArrayList<>();
+
+        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                assertEquals("Wrong value on ("+j+","+i+")!", expectedImage[i][j], thresholdImage[i][j]);
+            }
+        }
+    }
+
+    /**
+     * Test with just one threshold.
+     */
+    @Test
+    public void testManualThresholding4() {
+        int[][] image = new int[][] {
+                new int[]{0,0,2,1,0,2},
+                new int[]{1,3,6,5,4,1},
+                new int[]{2,4,7,9,3,0},
+                new int[]{0,5,8,9,6,2},
+                new int[]{1,6,3,4,5,0},
+                new int[]{2,0,1,2,0,1},
+        };
+        int[][] expectedImage = new int[][] {
+                new int[]{0,0,0,0,0,0},
+                new int[]{0,0,255,255,0,0},
+                new int[]{0,0,255,255,0,0},
+                new int[]{0,255,255,255,255,0},
+                new int[]{0,255,0,0,255,0},
+                new int[]{0,0,0,0,0,0},
+        };
+        int w = 6;
+        int h = 6;
+        List<Threshold> thresholds = new ArrayList<>();
+        thresholds.add(new Threshold(5,0));
+
+        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {

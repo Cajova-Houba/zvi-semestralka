@@ -32,17 +32,17 @@
              <VBox spacing="5">
                  <Label text="Ruční prahování:" />
                  <FlowPane>
-                    <ListView maxHeight="100" maxWidth="100" prefHeight="100" prefWidth="100" />
+                    <ListView maxHeight="100" maxWidth="200" prefHeight="100" prefWidth="200" fx:id="thresholdView"/>
                     <Button disable="true" text="-" />
                  </FlowPane>
                  <FlowPane>
                      <Label text="Práh: " />
-                     <TextField prefWidth="30" />
+                     <TextField prefWidth="30" fx:id="newThresh"/>
                      <Label text="Hodnota: " />
-                     <TextField prefWidth="30" />
-                     <Button text="+" />
+                     <TextField prefWidth="30" fx:id="threshVal"/>
+                     <Button text="+" onAction="#onAddThresholdClick"/>
                  </FlowPane>
-                 <Button text="Proveď ruční prahování" />
+                 <Button text="Proveď ruční prahování" onAction="#performManualThresholding"/>
              </VBox>
          </VBox>
       </right>
