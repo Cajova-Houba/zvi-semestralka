@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.TextField?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
       <!-- pane with configuration -->
       <right>
@@ -24,8 +25,7 @@
                <Label text="Segmentace" />
                <FlowPane>
                   <Label text="Threshold:" />
-                  <Slider fx:id="thresholdSlider" blockIncrement="1" max="255" min="0" minorTickCount="1" showTickLabels="true" snapToTicks="true" value="0" prefWidth="200"/>
-                  <Label fx:id="thresholdValLabel" text="0" />
+                  <TextField fx:id="thresholdValLabel" text="0" />
                </FlowPane>
                <RadioButton text="Region growing" />
                <Button onAction="#performSegmentation" text="Proveď segmentaci" />
@@ -41,4 +41,11 @@
              </ScrollPane>
          </VBox>
       </center>
+
+      <bottom>
+          <FlowPane alignment="BOTTOM_CENTER">
+            <Label fx:id="feedback"/>
+          </FlowPane>
+      </bottom>
+
 </BorderPane>

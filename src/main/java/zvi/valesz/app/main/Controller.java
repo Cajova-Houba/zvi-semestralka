@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -29,32 +30,16 @@ import java.util.Map;
 public class Controller {
 
     @FXML
-    private ImageView segmentedImageView;
-
-    @FXML
     private ImageView imageView;
 
     @FXML
     private BorderPane rootPane;
 
     @FXML
-    private Slider thresholdSlider;
+    private TextField thresholdValLabel;
 
     @FXML
-    private Label thresholdValLabel;
-
-    public void initialize() {
-        thresholdSlider.valueProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable,
-                                Number oldValue, Number newValue) {
-
-                int threshold = (int)Math.ceil((double)newValue);
-
-                thresholdValLabel.setText(Integer.toString(threshold));
-            }
-        });
-    }
+    private Label feedback;
 
     @FXML
     public void onLoadImageClick() {
@@ -72,12 +57,29 @@ public class Controller {
         // todo: choose the way of colorization
         Image image = imageView.getImage();
         if(image == null) {
-            System.out.println("No image!");
+            displayFeedbackMessage("Není načten žádný obrázek!");
             return;
         }
 
         Map<String, Object> statistics = new HashMap<>();
-        float threshold = (float)thresholdSlider.getValue();
+        float threshold = 0f;
+        String thText = thresholdValLabel.getText();
+        try {
+            threshold = Float.parseFloat(thText);
+        } catch (NullPointerException ex) {
+            displayFeedbackMessage("Není zadán threshold!");
+            return;
+        } catch (NumberFormatException ex) {
+            displayFeedbackMessage(thText+ " není platné číslo!");
+            return;
+        }
+
+        if(threshold < 0 || threshold > 255) {
+            displayFeedbackMessage("Threshold musí být v rozmezí <0;255>!");
+            return;
+        }
+
+        // segmentation
         List<MergedRegion> regions = Core.performRegionGrowing(image,threshold, statistics);
         Image segmentedImage = Core.colorize(image, regions);
         int[] histogram = Core.calculateHistogram(segmentedImage);
@@ -89,6 +91,8 @@ public class Controller {
             e.printStackTrace();
             displaySegmentedImageInNewWindow(segmentedImage, statistics);
         }
+
+        displayFeedbackMessage("Segmentace dokončena");
     }
 
     /**
@@ -141,5 +145,9 @@ public class Controller {
         newWindow.setScene(new Scene(root, 600,400));
         loader.<ImgWindowController>getController().init(segmentedImage, statistics);
         newWindow.show();
+    }
+
+    private void displayFeedbackMessage(String message) {
+        feedback.setText(message);
     }
 }
