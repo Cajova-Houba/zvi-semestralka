@@ -3,11 +3,34 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
-    <top>
-        <Label text="Segmentovaný obrázek" />
-    </top>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.canvas.Canvas?>
+<BorderPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.ImgWindowController">
+    <left>
+        <VBox>
+            <Label text="Data" />
+            <FlowPane>
+                <Label text="Threshold:" />
+                <Label fx:id="threshold"/>
+            </FlowPane>
+            <FlowPane>
+                <Label text="Počet regionů před narůstáním:" />
+                <Label fx:id="totalRegions"/>
+            </FlowPane>
+            <FlowPane>
+                <Label text="Počet regionů po narůstání:" />
+                <Label fx:id="mergedRegions"/>
+            </FlowPane>
+        </VBox>
+    </left>
     <center>
-        <ImageView fx:id="segmentedImageView" />
+        <VBox>
+            <Label text="Segmentovaný obraz:" />
+            <ImageView fx:id="segmentedImageView" />
+
+            <Label text="Histogram:"/>
+            <Canvas fx:id="histogram" />
+        </VBox>
     </center>
 </BorderPane>

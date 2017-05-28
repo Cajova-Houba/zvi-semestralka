@@ -7,9 +7,12 @@ import zvi.valesz.app.core.utils.FileUtils;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -270,6 +273,22 @@ public class CoreTest {
         testPrintRegions(mergedRegions, w, h);
     }
 
+    @Test
+    public void testRegionGrowingFile4() throws IOException {
+        String imgName = "/test-img4.bmp";
+        int[][] image = FileUtils.loadGreyImage(getResource(imgName));
+        int w = image[0].length;
+        int h = image.length;
+        int expRegions = 10;
+
+        Region wholeImage = new Region(0,0,w,h,image, 0f);
+        List<Region> regions = Core.split(wholeImage);
+        List<MergedRegion> mergedRegions = Core.merge(regions);
+
+        assertNotNull("Null returned!", mergedRegions);
+        assertEquals("Wrong number of merged regions!", expRegions, mergedRegions.size());
+    }
+
     /**
      * There are 5 regions in the image with colors:
      * 255, 150, 64, 48, 0
@@ -278,8 +297,8 @@ public class CoreTest {
      */
     @Test
     public void testRegionGrowtFileThreshold2() throws IOException {
-        String img1Name = "/threshold-test.bmp";
-        int[][] image = FileUtils.loadGreyImage(getResource(img1Name));
+        String imgName = "/threshold-test.bmp";
+        int[][] image = FileUtils.loadGreyImage(getResource(imgName));
         int w = image[0].length;
         int h = image.length;
 
@@ -321,6 +340,113 @@ public class CoreTest {
 
         // test print
 //        testPrintRegions(mergedRegions, w, h);
+    }
+
+    @Test
+    public void testCalculateHistogram() {
+        int[][] image = new int[][] {
+                new int[]{2,2,3,2,2,3},
+                new int[]{2,0,0,-1,2,3},
+                new int[]{2,0,2,0,2,0},
+                new int[]{2,0,0,0,2,0},
+                new int[]{2,2,3,2,2,256},
+        };
+        int[] histogram = Core.calculateHistogram(image);
+        int expSize = 256;
+        int zeros = 10;
+        int ones = 0;
+        int twos = 15;
+        int threes = 4;
+        int tooBigs = 1;
+
+        assertEquals("Wrong size of the histogram!",expSize, histogram.length);
+        assertEquals("Wrong number of zeros in histogram!", zeros, histogram[0]);
+        assertEquals("Wrong number of ones in histogram!", ones, histogram[1]);
+        assertEquals("Wrong number of twos in histogram!", twos, histogram[2]);
+        assertEquals("Wrong number of threes in histogram!", threes, histogram[3]);
+        assertEquals("Wrong number of 255s in histogram!", tooBigs, histogram[255]);
+        for (int i = 4; i < 255; i++) {
+            assertEquals("Wrong number of "+i+" in histogram!", 0, histogram[i]);
+        }
+    }
+
+    @Test
+    public void testManualThresholding() {
+        int[][] image = new int[][] {
+                new int[]{0,5,2,3,2},
+                new int[]{0,5,0,5,1},
+                new int[]{3,4,10,0,5},
+                new int[]{0,5,5,1,2},
+                new int[]{2,1,3,0,3},
+        };
+        int w = 5;
+        int h = 5;
+        int threshold = 5;
+        int[][] thresholdImage = new int[h][w];
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if(image[i][j] > threshold) {
+                    thresholdImage[i][j] = 10;
+                } else {
+                    thresholdImage[i][j] = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if(i == 2 && j == 2) {
+                    assertEquals("High value expected for ("+j+","+i+")!",10,thresholdImage[i][j]);
+                } else {
+                    assertEquals("Low value expected for ("+j+","+i+")!", 0, thresholdImage[i][j]);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testManualThresholding2() {
+        int[][] image = new int[][] {
+                new int[]{0,0,2,1,0,2},
+                new int[]{1,3,6,5,4,1},
+                new int[]{2,4,7,9,3,0},
+                new int[]{0,5,8,9,6,2},
+                new int[]{1,6,3,4,5,0},
+                new int[]{2,0,1,2,0,1},
+        };
+        int[][] expectedImage = new int[][] {
+                new int[]{0,0,0,0,0,0},
+                new int[]{0,5,5,5,5,0},
+                new int[]{0,5,9,9,5,0},
+                new int[]{0,5,9,9,5,0},
+                new int[]{0,5,5,5,5,0},
+                new int[]{0,0,0,0,0,0},
+        };
+        int w = 6;
+        int h = 6;
+        List<int[]> thresholds = new ArrayList<>();
+        thresholds.add(new int[] {3,0});
+        thresholds.add(new int[] {7,5});
+        thresholds.add(new int[] {11,9});
+
+        int[][] thresholdImage = new int[h][w];
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                for(int[] threshold : thresholds) {
+                    if(image[i][j] < threshold[0]) {
+                        thresholdImage[i][j] = threshold[1];
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                assertEquals("Wrong value on ("+j+","+i+")!", expectedImage[i][j], thresholdImage[i][j]);
+            }
+        }
     }
 
     private String getResource(String resourceName) {

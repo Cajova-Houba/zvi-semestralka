@@ -56,4 +56,30 @@ public class MergedRegion extends ArrayList<Region>{
         }
         return super.remove(o);
     }
+
+    /**
+     * Average color of the merged region got as (min+max)/2.
+     * If the merged region is empty, 0 is returned.
+     *
+     * @return Average color of the region.
+     */
+    public int getAverageColor() {
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        for(Region region : this) {
+            int tmpMin = region.getMinVal();
+            int tmpMax = region.getMaxVal();
+
+            if(tmpMin < min) {
+                min = tmpMin;
+            }
+
+            if(tmpMax > max) {
+                max = tmpMax;
+            }
+        }
+
+        return (min+max) / 2;
+    }
 }

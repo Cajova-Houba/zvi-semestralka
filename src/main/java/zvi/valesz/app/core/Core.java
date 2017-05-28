@@ -7,12 +7,9 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import zvi.valesz.app.core.region.MergedRegion;
 import zvi.valesz.app.core.region.Region;
-import zvi.valesz.app.core.utils.FileUtils;
+import zvi.valesz.app.core.utils.ImageUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Core class for are core-reated operations.
@@ -135,8 +132,10 @@ public class Core {
         PixelWriter imPixWriter = writableImage.getPixelWriter();
         int clrCntr = 0;
         for(MergedRegion mr : regions) {
-            if(mr.regionId != backgroundRegId) {
+//            if(mr.regionId != backgroundRegId) {
                 Color c = possibleColors[clrCntr];
+                int avg = mr.getAverageColor();
+//                c = Color.color(avg/255.0, avg/255.0, avg/255.0);
 
                 for(Region r : mr) {
                     for (int i = r.startY; i < r.startY+r.height; i++) {
@@ -148,7 +147,7 @@ public class Core {
 
                 clrCntr = (clrCntr + 1) % possibleColors.length;
             }
-        }
+//        }
 
 
         return writableImage;
@@ -158,17 +157,71 @@ public class Core {
      * Performs region growing over image and colorizes found regions.
      *
      * @param image Image to perform region growing over.
+     * @param threshold Threshold to be used.
+     * @param statistics Hash map to be filled with statistics data.
      * @return Image with colorized regions
      */
-    public static List<MergedRegion> performRegionGrowing(Image image, float threshold) {
+    public static List<MergedRegion> performRegionGrowing(Image image, float threshold, Map<String, Object> statistics) {
         // get int representation of image
-        int[][] intImg = FileUtils.imageToGeryInt(image);
+        int[][] intImg = ImageUtils.imageToGeryInt(image);
         int h = intImg.length;
         int w = intImg[0].length;
+        statistics.put(Statistics.THRESHOLD, threshold);
+
+        // split into regions
         Region wholeImage = new Region(0,0,w,h,intImg, threshold);
         List<Region> regions = split(wholeImage);
+        statistics.put(Statistics.TOTAL_REGIONS_COUNT, regions.size());
+
+        // perform the merge
         List<MergedRegion> mergedRegions = merge(regions);
+        statistics.put(Statistics.MERGED_REGIONS_COUNT, mergedRegions.size());
 
         return mergedRegions;
+    }
+
+    /**
+     * Calculates a grey scale histogram (256 values)
+     *
+     * @param image Histogram of this image will be calculated.
+     * @return Array of size 256 containing values from 0 to 255.
+     */
+    public static int[] calculateHistogram(Image image) {
+        int[][] intImg = ImageUtils.imageToGeryInt(image);
+        return calculateHistogram(intImg);
+    }
+
+    /**
+     * Calculates a grey scale histogram (256 values)
+     *
+     * @param image Histogram of this image will be calculated. The array is expected to be in [height][width] format.
+     *              Values lesser than 0 or greater than 255 will be trimmed to 0 or 255.
+     * @return Array of size 256 containing values from 0 to 255.
+     */
+    public static int[] calculateHistogram(int[][] image) {
+        int h = image.length;
+        int w = image[0].length;
+        int[] histogram = new int[256];
+
+        // fill the histogram with 0s
+        for (int i = 0; i < histogram.length; i++) {
+            histogram[i] = 0;
+        }
+
+        // go through image and calculate the histogram
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                int col = image[i][j];
+                if(col < 0) {
+                    histogram[0]++;
+                } else if (col > 255) {
+                    histogram[255]++;
+                } else {
+                    histogram[col]++;
+                }
+            }
+        }
+
+        return histogram;
     }
 }
