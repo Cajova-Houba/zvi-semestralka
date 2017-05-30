@@ -155,6 +155,41 @@ public class Core {
     }
 
     /**
+     * Converts image to greyscale, int[][] array and performs split operation.
+     * This method is more suitable for usage with threads than performRegionGrowing.
+     *
+     * @param image Image to perform opeartion on.
+     * @param threshold Threshold.
+     * @param statistics Object for saving statistics data.
+     * @return List of split regions.
+     */
+    public static List<Region> performSplit(Image image, float threshold, Statistics statistics) {
+        int[][] intImg = ImageUtils.imageToGeryInt(image);
+        int h = intImg.length;
+        int w = intImg[0].length;
+        statistics.put(Statistics.THRESHOLD, threshold);
+
+        Region wholeImage = new Region(0,0,w,h,intImg, threshold);
+        List<Region> regions = split(wholeImage);
+        statistics.put(Statistics.TOTAL_REGIONS_COUNT, regions.size());
+
+        return regions;
+    }
+
+    /**
+     * Performs the growing operation over split regions.
+     * @param splitRegions List of split regions to be merged.
+     * @param statistics Object for saving statistics data.
+     * @return List of merged regions.
+     */
+    public static List<MergedRegion> performGrowing(List<Region> splitRegions, Statistics statistics) {
+        List<MergedRegion> mergedRegions = merge(splitRegions);
+        statistics.put(Statistics.MERGED_REGIONS_COUNT, mergedRegions.size());
+
+        return mergedRegions;
+    }
+
+    /**
      * Performs region growing over image and colorizes found regions.
      *
      * @param image Image to perform region growing over.

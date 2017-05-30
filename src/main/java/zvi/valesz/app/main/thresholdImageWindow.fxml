@@ -33,7 +33,7 @@
                     <Insets top="30" />
                 </BorderPane.margin>
                 <Label text="Histogram:"/>
-                <Canvas fx:id="histogram" />
+                <Canvas fx:id="histogram" width="256" height="100"/>
             </VBox>
         </VBox>
     </left>

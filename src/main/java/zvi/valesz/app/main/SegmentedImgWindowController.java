@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * Created by Zdenek Vales on 28.5.2017.
  */
-public class SegmentedImgWindowController {
+public class SegmentedImgWindowController extends ControllerWithHistogram{
 
     @FXML
     private Label threshold;
@@ -44,15 +44,7 @@ public class SegmentedImgWindowController {
 
         double[] histogramData = (double[]) statistics.get(Statistics.HISTOGRAM);
         GraphicsContext gc = histogram.getGraphicsContext2D();
-        gc.setFill(Color.WHITE);
-        gc.fillRect(0,0,256,255);
-
-        gc.setFill(Color.BLACK);
-        for (int i = 0; i < histogramData.length; i++) {
-            double val = histogramData[i]*255;
-//            gc.fillRect(i,255-val,1,255-val);
-            gc.fillRect(i,255-val,1,val);
-        }
+        drawHistogram(gc,histogramData,histogram.getHeight());
 
         segmentedImageView.setImage(segmentedImage);
     }

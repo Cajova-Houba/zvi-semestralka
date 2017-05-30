@@ -1,5 +1,6 @@
 package zvi.valesz.app.main;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +19,7 @@ import zvi.valesz.app.core.Core;
 import zvi.valesz.app.core.Statistics;
 import zvi.valesz.app.core.Threshold;
 import zvi.valesz.app.core.region.MergedRegion;
+import zvi.valesz.app.core.region.Region;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +63,12 @@ public class Controller {
 
     @FXML
     private RadioButton brightColorsRadio;
+
+    @FXML
+    private ProgressBar segmentationProgress;
+
+    @FXML
+    private Button segmentationBtn;
 
     /**
      * Thresholds sorted by threshold value. Map is used to avoid duplicities.
@@ -122,6 +130,10 @@ public class Controller {
             displayFeedbackMessage("Není žádný obrázek.");
             return;
         }
+        if(image.getWidth() == 0 || image.getHeight() == 0) {
+            displayFeedbackMessage("Špatné rozměry obrázku.");
+            return;
+        }
         if(!auto){
             if (thresholdMap == null || thresholdMap.isEmpty()) {
                 displayFeedbackMessage("Nejsou zadány žádné prahy.");
@@ -168,23 +180,30 @@ public class Controller {
 
     @FXML
     public void performSegmentation() {
-        // todo: choose the way of colorization
         Image image = imageView.getImage();
         if(image == null) {
-            displayFeedbackMessage("Není načten žádný obrázek!");
+            displayFeedbackMessage("Není načten žádný obrázek.");
+            return;
+        }
+        if(image.getWidth() == 0 || image.getHeight() == 0) {
+            displayFeedbackMessage("Špatné rozměry obrázku.");
             return;
         }
 
         Statistics statistics = new Statistics();
         float threshold = 0f;
         String thText = thresholdValLabel.getText();
+        if(thText.isEmpty()) {
+            displayFeedbackMessage("Není zadán threshold.");
+            return;
+        }
         try {
             threshold = Float.parseFloat(thText);
         } catch (NullPointerException ex) {
-            displayFeedbackMessage("Není zadán threshold!");
+            displayFeedbackMessage("Není zadán threshold.");
             return;
         } catch (NumberFormatException ex) {
-            displayFeedbackMessage(thText+ " není platné číslo!");
+            displayFeedbackMessage(thText+ " není platné číslo.");
             return;
         }
 
@@ -195,24 +214,78 @@ public class Controller {
 
         // segmentation, colorization
         // image is always colorized to grey first so that histogram can be computed
-        List<MergedRegion> regions = Core.performRegionGrowing(image,threshold, statistics);
-        Image greyColor = Core.colorize(image, regions, ColorizationMethod.AVERAGE);
-        double[] histogram = Core.calculateHistogram(greyColor);
-        Image segmentedImage = greyColor;
-        if(brightColorsRadio.isSelected()) {
-            segmentedImage = Core.colorize(image, regions, ColorizationMethod.BRIGHT);
+        segmentationProgress.setVisible(true);
+        final float t = threshold;
+        final boolean bright = brightColorsRadio.isSelected();
+        new Thread() {
+            @Override
+            public void run() {
+                segmentationBtn.setDisable(true);
+                Platform.runLater(() -> {
+                    segmentationProgress.setProgress(0);
+                    displayFeedbackMessage("Operace split...");
+                });
+                List<Region> regions = Core.performSplit(image, t, statistics);
+
+                Platform.runLater(() -> {
+                    segmentationProgress.setProgress(0.25);
+                    displayFeedbackMessage("Operace merge...");
+                });
+                List<MergedRegion> mergedRegions = Core.performGrowing(regions, statistics);
+
+                Platform.runLater(() -> {
+                    segmentationProgress.setProgress(0.50);
+                    displayFeedbackMessage("Zabarvení a histogram...");
+                });
+                Image greyColor = Core.colorize(image, mergedRegions, ColorizationMethod.AVERAGE);
+                double[] histogram = Core.calculateHistogram(greyColor);
+                Image segmentedImage = greyColor;
+                if(bright) {
+                    segmentedImage = Core.colorize(image, mergedRegions, ColorizationMethod.BRIGHT);
+                }
+                statistics.put(Statistics.HISTOGRAM, histogram);
+
+                final Image img = segmentedImage;
+                Platform.runLater(() -> {
+                    segmentationProgress.setProgress(0.75);
+                    displayFeedbackMessage("Zobrazení...");
+                    try {
+                        displaySegmentedImageInNewWindowFxml(img, statistics);
+                        displayFeedbackMessage("Segmentace dokončena.");
+                    } catch (IOException e) {
+                        displayFeedbackMessage("Chyba při zobrazování");
+                    } finally {
+                        segmentationProgress.setProgress(0.100);
+                        segmentationProgress.setVisible(false);
+                        segmentationBtn.setDisable(false);
+                    }
+                });
+            }
+        }.start();
+
+        displayFeedbackMessage("Segmentace spuštěna");
+    }
+
+    public void onHistogramBtnClick() {
+        Image image = imageView.getImage();
+        if(image == null) {
+            displayFeedbackMessage("Není žádný obrázek.");
+            return;
+        }
+        if(image.getWidth() == 0 || image.getHeight() == 0) {
+            displayFeedbackMessage("Špatné rozměry obrázku.");
+            return;
         }
 
+        double[] histogram = Core.calculateHistogram(image);
+        Statistics statistics = new Statistics();
         statistics.put(Statistics.HISTOGRAM, histogram);
-
         try {
-            displaySegmentedImageInNewWindowFxml(segmentedImage, statistics);
+            displayHistogramInNewWindowFxml(statistics);
         } catch (IOException e) {
-            e.printStackTrace();
-            displaySegmentedImageInNewWindow(segmentedImage, statistics);
+            displayFeedbackMessage("Chyba při zobrazování histogramu.");
+            return;
         }
-
-        displayFeedbackMessage("Segmentace dokončena");
     }
 
     /**
@@ -276,6 +349,18 @@ public class Controller {
         newWindow.setTitle("Ruční prahování");
         newWindow.setScene(new Scene(root, 600,400));
         loader.<ThresholdImageController>getController().init(thresholdImage, statistics);
+        newWindow.show();
+    }
+
+    public void displayHistogramInNewWindowFxml(Statistics statistics) throws IOException {
+        final Stage newWindow = new Stage();
+        newWindow.initModality(Modality.NONE);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("histogramWindow.fxml"));
+        Parent root = loader.load();
+
+        newWindow.setTitle("Histogram");
+        newWindow.setScene(new Scene(root, 300,300));
+        loader.<HistogramController>getController().init(statistics);
         newWindow.show();
     }
 

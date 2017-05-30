@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ProgressBar?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
     <fx:define>
         <ToggleGroup fx:id="manThreshGroup" />
@@ -23,8 +24,9 @@
       <right>
          <VBox prefWidth="300" spacing="30">
              <VBox alignment="TOP_LEFT">
-                <Label text="Ovládání:" />
-                <Button fx:id="loadImageBtn" onAction="#onLoadImageClick" text="Načti obrázek" />
+                 <Label text="Ovládání:" />
+                 <Button fx:id="loadImageBtn" onAction="#onLoadImageClick" text="Načti obrázek" />
+                 <Button fx:id="histogramBtn" onAction="#onHistogramBtnClick" text="Histogram" />
              </VBox>
              <!-- threshold -->
              <VBox alignment="CENTER_LEFT" spacing="5">
@@ -38,7 +40,8 @@
                      <RadioButton text="Výrazné barvy" fx:id="brightColorsRadio" selected="true" toggleGroup="$colorizeGroup"/>
                      <RadioButton text="Průměrná barva regionu" toggleGroup="$colorizeGroup"/>
                  </VBox>
-                <Button onAction="#performSegmentation" text="Proveď segmentaci" />
+                <Button onAction="#performSegmentation" text="Proveď segmentaci" fx:id="segmentationBtn"/>
+                 <ProgressBar visible="false" fx:id="segmentationProgress"/>
              </VBox>
              <VBox spacing="5">
                  <Label text="Ruční prahování:" />

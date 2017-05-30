@@ -372,6 +372,13 @@ public class CoreTest {
         for (int i = 4; i < 255; i++) {
             assertEquals("Wrong number of "+i+" in histogram!", 0, histogram[i], dif);
         }
+
+        // check size
+        double sum = 0;
+        for (int i = 0; i < histogram.length; i++) {
+            sum += histogram[i];
+        }
+        assertEquals("Wrong sum of values in histogram!", 1, sum, dif);
     }
 
     @Test
