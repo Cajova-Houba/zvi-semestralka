@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import zvi.valesz.app.core.ColorizationMethod;
 import zvi.valesz.app.core.Core;
 import zvi.valesz.app.core.Statistics;
 import zvi.valesz.app.core.Threshold;
@@ -57,6 +58,9 @@ public class Controller {
 
     @FXML
     private ScrollPane imageContainer;
+
+    @FXML
+    private RadioButton brightColorsRadio;
 
     /**
      * Thresholds sorted by threshold value. Map is used to avoid duplicities.
@@ -189,10 +193,16 @@ public class Controller {
             return;
         }
 
-        // segmentation
+        // segmentation, colorization
+        // image is always colorized to grey first so that histogram can be computed
         List<MergedRegion> regions = Core.performRegionGrowing(image,threshold, statistics);
-        Image segmentedImage = Core.colorize(image, regions);
-        int[] histogram = Core.calculateHistogram(segmentedImage);
+        Image greyColor = Core.colorize(image, regions, ColorizationMethod.AVERAGE);
+        double[] histogram = Core.calculateHistogram(greyColor);
+        Image segmentedImage = greyColor;
+        if(brightColorsRadio.isSelected()) {
+            segmentedImage = Core.colorize(image, regions, ColorizationMethod.BRIGHT);
+        }
+
         statistics.put(Statistics.HISTOGRAM, histogram);
 
         try {

@@ -14,10 +14,10 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.layout.HBox?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
     <fx:define>
         <ToggleGroup fx:id="manThreshGroup" />
+        <ToggleGroup fx:id="colorizeGroup" />
     </fx:define>
     <!-- pane with configuration -->
       <right>
@@ -33,6 +33,11 @@
                    <Label text="Threshold:" />
                    <TextField fx:id="thresholdValLabel" text="0" />
                 </FlowPane>
+                 <VBox spacing="5">
+                     <Label text="Volba zabarvení"/>
+                     <RadioButton text="Výrazné barvy" fx:id="brightColorsRadio" selected="true" toggleGroup="$colorizeGroup"/>
+                     <RadioButton text="Průměrná barva regionu" toggleGroup="$colorizeGroup"/>
+                 </VBox>
                 <Button onAction="#performSegmentation" text="Proveď segmentaci" />
              </VBox>
              <VBox spacing="5">

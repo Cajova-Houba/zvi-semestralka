@@ -7,10 +7,15 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.canvas.Canvas?>
 
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.geometry.Insets?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.ThresholdImageController">
     <left>
-        <VBox>
-            <Label text="Data" />
+        <VBox prefWidth="300">
+            <BorderPane.margin>
+                <Insets top="10" bottom="10" left="10" right="10" />
+            </BorderPane.margin>
+            <Label text="Data:" />
             <FlowPane>
                 <Label text="Počet prahů:" />
                 <Label fx:id="thresholdCount"/>
@@ -19,15 +24,28 @@
                 <Label text="Velikost obrázků (px):" />
                 <Label fx:id="imageSize"/>
             </FlowPane>
+            <FlowPane fx:id="autoThresholdPane">
+                <Label  text="Automatický práh:" />
+                <Label fx:id="autoThreshold" />
+            </FlowPane>
+            <VBox>
+                <BorderPane.margin>
+                    <Insets top="30" />
+                </BorderPane.margin>
+                <Label text="Histogram:"/>
+                <Canvas fx:id="histogram" />
+            </VBox>
         </VBox>
     </left>
     <center>
         <VBox>
+            <BorderPane.margin>
+                <Insets top="10" bottom="10" left="10" right="10" />
+            </BorderPane.margin>
             <Label text="Obraz po manuálním prahování:" />
-            <ImageView fx:id="thresholdImageView" />
-
-            <Label text="Histogram:"/>
-            <Canvas fx:id="histogram" />
+            <ScrollPane fx:id="imageContainer" hmax="300.0" vmax="300.0" VBox.vgrow="SOMETIMES">
+                <ImageView fx:id="thresholdImageView" />
+            </ScrollPane>
         </VBox>
     </center>
 </BorderPane>

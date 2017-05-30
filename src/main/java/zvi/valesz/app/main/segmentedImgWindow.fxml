@@ -6,9 +6,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
 <BorderPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.SegmentedImgWindowController">
     <left>
-        <VBox>
+        <VBox prefWidth="300">
+            <BorderPane.margin>
+                <Insets top="10" bottom="10" left="10" right="10" />
+            </BorderPane.margin>
             <Label text="Data" />
             <FlowPane>
                 <Label text="Threshold:" />
@@ -22,15 +27,24 @@
                 <Label text="Počet regionů po narůstání:" />
                 <Label fx:id="mergedRegions"/>
             </FlowPane>
+            <VBox>
+                <BorderPane.margin>
+                    <Insets top="30" />
+                </BorderPane.margin>
+                <Label text="Histogram:"/>
+                <Canvas fx:id="histogram" width="256" height="255"/>
+            </VBox>
         </VBox>
     </left>
     <center>
         <VBox>
+            <BorderPane.margin>
+                <Insets top="10" bottom="10" left="10" right="10" />
+            </BorderPane.margin>
             <Label text="Segmentovaný obraz:" />
-            <ImageView fx:id="segmentedImageView" />
-
-            <Label text="Histogram:"/>
-            <Canvas fx:id="histogram" />
+            <ScrollPane fx:id="imageContainer" hmax="300.0" vmax="300.0" VBox.vgrow="SOMETIMES">
+                <ImageView fx:id="segmentedImageView" />
+            </ScrollPane>
         </VBox>
     </center>
 </BorderPane>

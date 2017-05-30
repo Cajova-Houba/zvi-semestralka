@@ -42,16 +42,16 @@ public class SegmentedImgWindowController {
         totalRegions.setText(Integer.toString(totalNumOfRegions));
         mergedRegions.setText(Integer.toString(numOfRegions));
 
-        histogram = new Canvas(256,255);
-        int[] histogramData = (int[]) statistics.get(Statistics.HISTOGRAM);
+        double[] histogramData = (double[]) statistics.get(Statistics.HISTOGRAM);
         GraphicsContext gc = histogram.getGraphicsContext2D();
         gc.setFill(Color.WHITE);
         gc.fillRect(0,0,256,255);
 
         gc.setFill(Color.BLACK);
         for (int i = 0; i < histogramData.length; i++) {
-            int val = histogramData[i];
-            gc.fillRect(i,255,1,255-val);
+            double val = histogramData[i]*255;
+//            gc.fillRect(i,255-val,1,255-val);
+            gc.fillRect(i,255-val,1,val);
         }
 
         segmentedImageView.setImage(segmentedImage);

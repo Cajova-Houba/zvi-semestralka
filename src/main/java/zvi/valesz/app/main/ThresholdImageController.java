@@ -5,6 +5,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
 import zvi.valesz.app.core.Statistics;
 
 /**
@@ -24,11 +25,25 @@ public class ThresholdImageController {
     @FXML
     private Canvas histogram;
 
+    @FXML
+    private Label autoThreshold;
+
+    private Statistics statistics;
+
     public void init(Image thresholdImage, Statistics statistics) {
+        this.statistics = statistics;
         int tCount = (int) statistics.get(Statistics.THRESHOLD_COUNT);
         int[] histogramData = (int[])statistics.get(Statistics.HISTOGRAM);
         int size = (int) statistics.get(Statistics.PIXEL_COUNT);
+        if(statistics.containsKey(Statistics.AUTOMATIC_THRESHOLD)) {
+            int aT = (int) statistics.get(Statistics.AUTOMATIC_THRESHOLD);
+            autoThreshold.setText(Integer.toString(aT));
+        } else {
+            autoThreshold.setText("-");
+        }
 
+        thresholdCount.setText(Integer.toString(tCount));
+        imageSize.setText(Integer.toString(size));
         thresholdImageView.setImage(thresholdImage);
     }
 }

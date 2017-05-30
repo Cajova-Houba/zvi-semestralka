@@ -352,22 +352,25 @@ public class CoreTest {
                 new int[]{2,0,0,0,2,0},
                 new int[]{2,2,3,2,2,256},
         };
-        int[] histogram = Core.calculateHistogram(image);
+        double[] histogram = Core.calculateHistogram(image);
         int expSize = 256;
-        int zeros = 10;
-        int ones = 0;
-        int twos = 15;
-        int threes = 4;
-        int tooBigs = 1;
+        int imgSize = 30;
+        double zeros = 10.0 / imgSize;
+        double ones = 0.0;
+        double twos = 15.0 / imgSize;
+        double threes = 4.0 / imgSize;
+        double tooBigs = 1.0 / imgSize;
+        double dif = 0.01;
 
-        assertEquals("Wrong size of the histogram!",expSize, histogram.length);
-        assertEquals("Wrong number of zeros in histogram!", zeros, histogram[0]);
-        assertEquals("Wrong number of ones in histogram!", ones, histogram[1]);
-        assertEquals("Wrong number of twos in histogram!", twos, histogram[2]);
-        assertEquals("Wrong number of threes in histogram!", threes, histogram[3]);
-        assertEquals("Wrong number of 255s in histogram!", tooBigs, histogram[255]);
+
+        assertEquals("Wrong size of the histogram!",expSize, histogram.length, dif);
+        assertEquals("Wrong number of zeros in histogram!", zeros, histogram[0], dif);
+        assertEquals("Wrong number of ones in histogram!", ones, histogram[1], dif);
+        assertEquals("Wrong number of twos in histogram!", twos, histogram[2], dif);
+        assertEquals("Wrong number of threes in histogram!", threes, histogram[3], dif);
+        assertEquals("Wrong number of 255s in histogram!", tooBigs, histogram[255], dif);
         for (int i = 4; i < 255; i++) {
-            assertEquals("Wrong number of "+i+" in histogram!", 0, histogram[i]);
+            assertEquals("Wrong number of "+i+" in histogram!", 0, histogram[i], dif);
         }
     }
 

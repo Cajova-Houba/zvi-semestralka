@@ -111,7 +111,7 @@ public class Core {
      * @param regions
      * @return
      */
-    public static Image colorize(Image image, List<MergedRegion> regions) {
+    public static Image colorize(Image image, List<MergedRegion> regions, ColorizationMethod method) {
         int maxSize = Integer.MIN_VALUE;
         int backgroundRegId = -1;
 
@@ -132,10 +132,11 @@ public class Core {
         PixelWriter imPixWriter = writableImage.getPixelWriter();
         int clrCntr = 0;
         for(MergedRegion mr : regions) {
-//            if(mr.regionId != backgroundRegId) {
-                Color c = possibleColors[clrCntr];
+            Color c = possibleColors[clrCntr];
+            if (method == ColorizationMethod.AVERAGE) {
                 int avg = mr.getAverageColor();
-//                c = Color.color(avg/255.0, avg/255.0, avg/255.0);
+                c = ImageUtils.getGreyColor(avg);
+            }
 
                 for(Region r : mr) {
                     for (int i = r.startY; i < r.startY+r.height; i++) {
@@ -229,7 +230,7 @@ public class Core {
         int[][] thresholdImage = performManualThresholding(intImage, thresholds);
         int h = intImage.length;
         int w = intImage[0].length;
-        int[] histogram = calculateHistogram(thresholdImage);
+        double[] histogram = calculateHistogram(thresholdImage);
 
 
         statistics.put(Statistics.PIXEL_COUNT, w*h);
@@ -289,9 +290,9 @@ public class Core {
      * Calculates a grey scale histogram (256 values)
      *
      * @param image Histogram of this image will be calculated.
-     * @return Array of size 256 containing values from 0 to 255.
+     * @return Array of size 256 containing values from 0 to 1.
      */
-    public static int[] calculateHistogram(Image image) {
+    public static double[] calculateHistogram(Image image) {
         int[][] intImg = ImageUtils.imageToGeryInt(image);
         return calculateHistogram(intImg);
     }
@@ -301,12 +302,12 @@ public class Core {
      *
      * @param image Histogram of this image will be calculated. The array is expected to be in [height][width] format.
      *              Values lesser than 0 or greater than 255 will be trimmed to 0 or 255.
-     * @return Array of size 256 containing values from 0 to 255.
+     * @return Array of size 256 containing values from 0 to 1.
      */
-    public static int[] calculateHistogram(int[][] image) {
+    public static double[] calculateHistogram(int[][] image) {
         int h = image.length;
         int w = image[0].length;
-        int[] histogram = new int[256];
+        double[] histogram = new double[256];
 
         // fill the histogram with 0s
         for (int i = 0; i < histogram.length; i++) {
@@ -325,6 +326,12 @@ public class Core {
                     histogram[col]++;
                 }
             }
+        }
+
+        // normalize the values
+        double size = w*h;
+        for (int i = 0; i < histogram.length; i++) {
+            histogram[i] /= size;
         }
 
         return histogram;
