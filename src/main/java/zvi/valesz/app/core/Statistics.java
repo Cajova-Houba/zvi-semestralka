@@ -41,6 +41,13 @@ public class Statistics extends HashMap<String,Object> {
 
     /**
      * Number of thresholds used for manual thresholding.
+     * Int should be a value.
      */
     public static final String THRESHOLD_COUNT = "thresholdCount";
+
+    /**
+     * Value of automatically calculated threshold.
+     * Int should be a value.
+     */
+    public static final String AUTOMATIC_THRESHOLD = "automaticThreshold";
 }

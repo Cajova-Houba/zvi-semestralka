@@ -5,9 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -47,6 +45,18 @@ public class Controller {
 
     @FXML
     private ListView thresholdView;
+
+    @FXML
+    private RadioButton autoThreshRadio;
+
+    @FXML
+    private RadioButton manualThreshRadio;
+
+    @FXML
+    private final ToggleGroup manThreshGroup = new ToggleGroup();
+
+    @FXML
+    private ScrollPane imageContainer;
 
     /**
      * Thresholds sorted by threshold value. Map is used to avoid duplicities.
@@ -101,18 +111,25 @@ public class Controller {
     @FXML
     public void performManualThresholding() {
         Image image = imageView.getImage();
+        boolean auto = autoThreshRadio.isSelected();
+        List<Threshold> thresholds = new ArrayList<>();
+
         if (image == null) {
             displayFeedbackMessage("Není žádný obrázek.");
             return;
         }
-        if(thresholdMap == null || thresholdMap.isEmpty()) {
-            displayFeedbackMessage("Nejsou zadány žádné prahy.");
-            return;
+        if(!auto){
+            if (thresholdMap == null || thresholdMap.isEmpty()) {
+                displayFeedbackMessage("Nejsou zadány žádné prahy.");
+                return;
+            } else {
+                // if automatic threshold is selected, empty list will be used.
+                thresholds = new ArrayList<>(thresholdMap.values());
+            }
         }
 
-        List<Threshold> thresholds = new ArrayList<>(thresholdMap.values());
         Statistics statistics = new Statistics();
-        Image thresholdImage = Core.manualThresholding(image, thresholds, statistics);
+        Image thresholdImage = Core.performManualThresholding(image, thresholds, statistics);
 
         try {
             displayManualThresholdImageInNewWindowFxml(thresholdImage, statistics);
@@ -128,7 +145,20 @@ public class Controller {
         File f = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
         if (f != null) {
             Image image = new Image(f.toURI().toString());
+            int w = (int) image.getWidth();
+            int h = (int) image.getHeight();
             imageView.setImage(image);
+            if(w < imageContainer.getWidth()) {
+                imageView.setX((imageContainer.getWidth() - w ) / 2.0);
+            } else {
+                imageView.setX(0.0);
+            }
+
+            if(h < imageContainer.getHeight()) {
+                imageView.setY((imageContainer.getHeight() - h) / 2.0);
+            } else {
+                imageView.setY(0.0);
+            }
         }
     }
 

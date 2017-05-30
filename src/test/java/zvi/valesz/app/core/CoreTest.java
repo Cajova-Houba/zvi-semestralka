@@ -1,15 +1,16 @@
 package zvi.valesz.app.core;
 
+import javafx.scene.image.Image;
 import org.junit.Test;
 import zvi.valesz.app.core.region.MergedRegion;
 import zvi.valesz.app.core.region.Region;
 import zvi.valesz.app.core.utils.FileUtils;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -430,7 +431,7 @@ public class CoreTest {
         thresholds.add(new Threshold(7,5));
         thresholds.add(new Threshold(11,9));
 
-        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
+        int[][] thresholdImage = Core.performManualThresholding(image, thresholds);
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
@@ -464,7 +465,7 @@ public class CoreTest {
         int h = 6;
         List<Threshold> thresholds = new ArrayList<>();
 
-        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
+        int[][] thresholdImage = Core.performManualThresholding(image, thresholds);
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
@@ -499,13 +500,29 @@ public class CoreTest {
         List<Threshold> thresholds = new ArrayList<>();
         thresholds.add(new Threshold(5,0));
 
-        int[][] thresholdImage = Core.manualThresholding(image, thresholds);
+        int[][] thresholdImage = Core.performManualThresholding(image, thresholds);
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
                 assertEquals("Wrong value on ("+j+","+i+")!", expectedImage[i][j], thresholdImage[i][j]);
             }
         }
+    }
+
+    @Test
+    public void testAutomaticThreshold() {
+        int[][] image = new int[][] {
+                new int[]{0,0,2,1,0,2},
+                new int[]{1,3,6,5,4,1},
+                new int[]{2,4,7,9,3,0},
+                new int[]{0,5,8,9,6,2},
+                new int[]{1,6,3,4,5,0},
+                new int[]{2,0,1,2,0,1},
+        };
+        int expThreshold = 9 / 2;
+
+        int threshold = Core.automaticThreshold(image);
+        assertEquals("Wrong threshold!", expThreshold, threshold);
     }
 
     private String getResource(String resourceName) {

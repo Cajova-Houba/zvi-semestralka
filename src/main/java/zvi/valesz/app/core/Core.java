@@ -181,20 +181,56 @@ public class Core {
     }
 
     /**
+     * Returns the threshold as (MIN+MAX)/2.
+     *
+     * @param image Source image.
+     * @return Threshold.
+     */
+    public static int automaticThreshold(int[][] image) {
+        int h = image.length;
+        int w = image[0].length;
+        int threshold = 0;
+
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                if(image[i][j] < min) {
+                    min = image[i][j];
+                }
+
+                if(image[i][j] > max) {
+                    max = image[i][j];
+                }
+            }
+        }
+
+        threshold = (max+min) / 2;
+        return threshold;
+    }
+
+    /**
      * Performs manual thresholding over the image represented by integer array.
      * If the threshold list is empty, original image is returned.
      * If some value in the image is greater than every threshold, 255 is used.
      *
      * @param image Image.
-     * @param thresholds List of thresholds. Expected to have ascending order.
+     * @param thresholds List of thresholds. Expected to have ascending order. If empty, automatic threshold will be used.
      * @param statistics Map containing statistics data.
      */
-    public static Image manualThresholding(Image image, List<Threshold> thresholds, Map<String, Object> statistics) {
+    public static Image performManualThresholding(Image image, List<Threshold> thresholds, Map<String, Object> statistics) {
         int[][] intImage = ImageUtils.imageToGeryInt(image);
-        int[][] thresholdImage = manualThresholding(intImage, thresholds);
+        if(thresholds.isEmpty()) {
+            int threshold = automaticThreshold(intImage);
+            thresholds.add(new Threshold(threshold, 0));
+            statistics.put(Statistics.AUTOMATIC_THRESHOLD, threshold);
+        }
+        int[][] thresholdImage = performManualThresholding(intImage, thresholds);
         int h = intImage.length;
         int w = intImage[0].length;
         int[] histogram = calculateHistogram(thresholdImage);
+
 
         statistics.put(Statistics.PIXEL_COUNT, w*h);
         statistics.put(Statistics.THRESHOLD_COUNT, thresholds.size());
@@ -219,7 +255,7 @@ public class Core {
      * @param image Image, array is expected to be in [height][width].
      * @param thresholds List of thresholds. Expected to have ascending order.
      */
-    public static int[][] manualThresholding(int[][] image, List<Threshold> thresholds) {
+    public static int[][] performManualThresholding(int[][] image, List<Threshold> thresholds) {
         int h = image.length;
         int w = image[0].length;
         int[][] thresholdImage = new int[h][w];

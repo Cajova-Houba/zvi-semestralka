@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.layout.HBox?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.Controller">
-      <!-- pane with configuration -->
+    <fx:define>
+        <ToggleGroup fx:id="manThreshGroup" />
+    </fx:define>
+    <!-- pane with configuration -->
       <right>
          <VBox prefWidth="300" spacing="30">
              <VBox alignment="TOP_LEFT">
@@ -31,27 +37,35 @@
              </VBox>
              <VBox spacing="5">
                  <Label text="Ruční prahování:" />
+                 <RadioButton fx:id="autoThreshRadio" selected="true" text="Automatický práh" toggleGroup="$manThreshGroup"/>
+                 <RadioButton fx:id="manualThreshRadio" text="Zadané prahy" toggleGroup="$manThreshGroup" />
                  <FlowPane>
-                    <ListView maxHeight="100" maxWidth="200" prefHeight="100" prefWidth="200" fx:id="thresholdView"/>
+                    <ListView fx:id="thresholdView" maxHeight="100" maxWidth="200" prefHeight="100" prefWidth="200" />
                     <Button disable="true" text="-" />
                  </FlowPane>
                  <FlowPane>
                      <Label text="Práh: " />
-                     <TextField prefWidth="30" fx:id="newThresh"/>
+                     <TextField fx:id="newThresh" prefWidth="30" />
                      <Label text="Hodnota: " />
-                     <TextField prefWidth="30" fx:id="threshVal"/>
-                     <Button text="+" onAction="#onAddThresholdClick"/>
+                     <TextField fx:id="threshVal" prefWidth="30" />
+                     <Button onAction="#onAddThresholdClick" text="+" />
                  </FlowPane>
-                 <Button text="Proveď ruční prahování" onAction="#performManualThresholding"/>
+                 <Button onAction="#performManualThresholding" text="Proveď ruční prahování" />
              </VBox>
+         <BorderPane.margin>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </BorderPane.margin>
          </VBox>
       </right>
 
       <!-- pane displaying image -->
       <center>
          <VBox alignment="CENTER">
-             <ScrollPane hmax="600.0" vmax="600.0">
-                <ImageView fx:id="imageView" />
+             <BorderPane.margin>
+                 <Insets bottom="10" left="10" right="10" top="10" />
+             </BorderPane.margin>
+             <ScrollPane fx:id="imageContainer" hmax="300.0" vmax="300.0" VBox.vgrow="ALWAYS">
+                 <ImageView fx:id="imageView" />
              </ScrollPane>
          </VBox>
       </center>
