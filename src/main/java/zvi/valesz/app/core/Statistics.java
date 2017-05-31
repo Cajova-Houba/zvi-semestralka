@@ -50,4 +50,10 @@ public class Statistics extends HashMap<String,Object> {
      * Int should be a value.
      */
     public static final String AUTOMATIC_THRESHOLD = "automaticThreshold";
+
+    /**
+     * The format of input image (png, jpg, bmp...)
+     * String should be a value.
+     */
+    public static final String INPUT_IMAGE_FORMAT = "inputImageFormat";
 }

@@ -70,10 +70,37 @@ public class Controller {
     @FXML
     private Button segmentationBtn;
 
+    @FXML
+    private Button stopSegmentationBtn;
+
     /**
      * Thresholds sorted by threshold value. Map is used to avoid duplicities.
      */
     private Map<Integer, Threshold> thresholdMap;
+
+
+    private Thread segmentationThread;
+
+    public void onStopSegmentationClick() {
+        stopSegmentationThread();
+        segmentationProgress.setProgress(0.100);
+        segmentationProgress.setVisible(false);
+        segmentationBtn.setDisable(false);
+        stopSegmentationBtn.setVisible(false);
+        displayFeedbackMessage("Segmentace zastavena.");
+    }
+
+    public void stopSegmentationThread() {
+        if(segmentationThread == null) {
+            return;
+        }
+
+        if(!segmentationThread.isAlive()) {
+            return;
+        }
+
+        segmentationThread.stop();
+    }
 
     public void onAddThresholdClick() {
         int nt = 0;
@@ -217,9 +244,10 @@ public class Controller {
         segmentationProgress.setVisible(true);
         final float t = threshold;
         final boolean bright = brightColorsRadio.isSelected();
-        new Thread() {
+        segmentationThread = new Thread() {
             @Override
             public void run() {
+                statistics.put(Statistics.PIXEL_COUNT, (int)(image.getHeight()*image.getWidth()));
                 segmentationBtn.setDisable(true);
                 Platform.runLater(() -> {
                     segmentationProgress.setProgress(0);
@@ -228,10 +256,16 @@ public class Controller {
                 List<Region> regions = Core.performSplit(image, t, statistics);
 
                 Platform.runLater(() -> {
+                    segmentationProgress.setProgress(0.10);
+                    displayFeedbackMessage("Sestavuji graf sousedů...");
+                });
+                Map<Region, List<Region>> neighbourGraph = Core.findNeighbours(regions);
+
+                Platform.runLater(() -> {
                     segmentationProgress.setProgress(0.25);
                     displayFeedbackMessage("Operace merge...");
                 });
-                List<MergedRegion> mergedRegions = Core.performGrowing(regions, statistics);
+                List<MergedRegion> mergedRegions = Core.performGrowing(regions, neighbourGraph, statistics);
 
                 Platform.runLater(() -> {
                     segmentationProgress.setProgress(0.50);
@@ -258,10 +292,13 @@ public class Controller {
                         segmentationProgress.setProgress(0.100);
                         segmentationProgress.setVisible(false);
                         segmentationBtn.setDisable(false);
+                        stopSegmentationBtn.setVisible(false);
                     }
                 });
             }
-        }.start();
+        };
+        stopSegmentationBtn.setVisible(true);
+        segmentationThread.start();
 
         displayFeedbackMessage("Segmentace spuštěna");
     }

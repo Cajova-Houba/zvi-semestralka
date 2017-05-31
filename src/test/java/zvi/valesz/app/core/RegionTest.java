@@ -14,6 +14,156 @@ import static org.junit.Assert.*;
 public class RegionTest {
 
     @Test
+    public void testCalculateAdjacentPoints1() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,1},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,1,2,1,image);
+        Region r2 = new Region(2,2,2,1,image);
+        int expAPoints = 1;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints2() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,1,1,1},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,1,2,1,image);
+        Region r2 = new Region(1,2,3,1,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints3() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{1,1,1,0},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,1,2,1,image);
+        Region r2 = new Region(0,2,3,1,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints4() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{1,1,1,1},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,1,2,1,image);
+        Region r2 = new Region(0,2,4,1,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints5() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{1,1,0,0},
+                new int[]{0,0,1,1},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(0,1,2,1,image);
+        Region r2 = new Region(2,2,2,1,image);
+        int expAPoints = 0;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints6() {
+        int[][] image = new int[][] {
+                new int[]{0,1,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,0},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,0,1,2,image);
+        Region r2 = new Region(2,1,1,2,image);
+        int expAPoints = 1;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints7() {
+        int[][] image = new int[][] {
+                new int[]{0,1,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,0,0},
+        };
+        Region r1 = new Region(1,0,1,3,image);
+        Region r2 = new Region(2,1,1,2,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints8() {
+        int[][] image = new int[][] {
+                new int[]{0,0,0,0},
+                new int[]{0,1,1,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,0},
+        };
+        Region r1 = new Region(1,1,1,2,image);
+        Region r2 = new Region(2,1,1,3,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints9() {
+        int[][] image = new int[][] {
+                new int[]{0,0,1,0},
+                new int[]{0,1,1,0},
+                new int[]{0,1,1,0},
+                new int[]{0,0,1,0},
+        };
+        Region r1 = new Region(1,1,1,2,image);
+        Region r2 = new Region(2,0,1,4,image);
+        int expAPoints = 2;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
+    public void testCalculateAdjacentPoints10() {
+        int[][] image = new int[][] {
+                new int[]{0,1,0,0},
+                new int[]{0,1,0,0},
+                new int[]{0,0,1,0},
+                new int[]{0,0,1,0},
+        };
+        Region r1 = new Region(1,0,1,2,image);
+        Region r2 = new Region(2,2,1,2,image);
+        int expAPoints = 0;
+        assertEquals("Wrong number of adjacent points r1,r2!", expAPoints, r1.calculateAdjacentPoints(r2));
+        assertEquals("Wrong number of adjacent points r2,r1!", expAPoints, r2.calculateAdjacentPoints(r1));
+    }
+
+    @Test
     public void testSplit() {
         int[][] image = new int[][] {
                 new int[]{0,0,0,0},

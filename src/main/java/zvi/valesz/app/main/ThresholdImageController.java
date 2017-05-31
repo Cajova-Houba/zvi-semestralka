@@ -6,13 +6,15 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.image.WritableImage;
+import javafx.stage.Window;
+import zvi.valesz.app.core.Constants;
 import zvi.valesz.app.core.Statistics;
 
 /**
  * Created by Zdenek Vales on 28.5.2017.
  */
-public class ThresholdImageController extends ControllerWithHistogram{
+public class ThresholdImageController extends BaseOutputController {
 
     @FXML
     private Label imageSize;
@@ -30,6 +32,25 @@ public class ThresholdImageController extends ControllerWithHistogram{
     private Label autoThreshold;
 
     private Statistics statistics;
+
+    public void saveHistogram() {
+        Window owner = histogram.getScene().getWindow();
+        Statistics statistics = new Statistics();
+        statistics.put(Statistics.INPUT_IMAGE_FORMAT, Constants.BMP_EXT);
+        WritableImage image = new WritableImage((int)histogram.getWidth(), (int)histogram.getHeight());
+        histogram.snapshot(null, image);
+        saveImage(image, statistics, owner);
+    }
+
+    public void onSaveDataClick() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Počet prahů: ").append(thresholdCount.getText()).append("\n");
+        sb.append("Velikost obrázku (px): ").append(imageSize.getText()).append("\n");
+        sb.append("Automatický práh : ").append(autoThreshold.getText()).append("\n");
+
+        Window owner = imageSize.getScene().getWindow();
+        saveString(sb.toString(), owner);
+    }
 
     public void init(Image thresholdImage, Statistics statistics) {
         this.statistics = statistics;

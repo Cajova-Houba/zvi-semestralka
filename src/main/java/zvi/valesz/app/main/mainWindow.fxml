@@ -32,15 +32,18 @@
              <VBox alignment="CENTER_LEFT" spacing="5">
                 <Label text="Narůstání oblastí:" />
                 <FlowPane>
-                   <Label text="Threshold:" />
+                   <Label text="Rozsah barev v oblasti:" />
                    <TextField fx:id="thresholdValLabel" text="0" />
                 </FlowPane>
                  <VBox spacing="5">
                      <Label text="Volba zabarvení"/>
                      <RadioButton text="Výrazné barvy" fx:id="brightColorsRadio" selected="true" toggleGroup="$colorizeGroup"/>
-                     <RadioButton text="Průměrná barva regionu" toggleGroup="$colorizeGroup"/>
+                     <RadioButton text="Střední barva oblasti" toggleGroup="$colorizeGroup"/>
                  </VBox>
-                <Button onAction="#performSegmentation" text="Proveď segmentaci" fx:id="segmentationBtn"/>
+                 <FlowPane>
+                     <Button onAction="#performSegmentation" text="Proveď segmentaci" fx:id="segmentationBtn"/>
+                     <Button text="Stop" fx:id="stopSegmentationBtn" visible="false" onAction="#onStopSegmentationClick"/>
+                 </FlowPane>
                  <ProgressBar visible="false" fx:id="segmentationProgress"/>
              </VBox>
              <VBox spacing="5">

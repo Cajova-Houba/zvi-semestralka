@@ -10,7 +10,9 @@ import zvi.valesz.app.core.utils.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,6 +22,65 @@ import static org.junit.Assert.assertTrue;
  * Created by Zdenek Vales on 6.5.2017.
  */
 public class CoreTest {
+
+    @Test
+    public void testConstructNeighbourGraph() {
+        int[][] image = new int[][] {
+                new int[]{0,0,1,1},
+                new int[]{0,0,2,2},
+                new int[]{3,3,3,4},
+                new int[]{3,3,3,4},
+        };
+        List<Region> regions = new ArrayList<>();
+        regions.add(new Region(0,0,2,2,image));     // r0
+        regions.add(new Region(2,0,2,1,image));     // r1
+        regions.add(new Region(2,1,2,1,image));     // r2
+        regions.add(new Region(0,2,3,2,image));     // r3
+        regions.add(new Region(3,2,1,2,image));     // r4
+
+        // algorithm
+        Map<Region, List<Region>> neighbourGraph = Core.findNeighbours(regions);
+
+        assertEquals("Wrong number of nodes in neighbour graph!", regions.size(), neighbourGraph.size());
+
+        // neighbours of r0
+        List<Region> neighbours = neighbourGraph.get(regions.get(0));
+        assertEquals("Wrong number of r0's neighbours!", 3, neighbours.size());
+        assertTrue("R1 not in r0 neighbours!", neighbours.contains(regions.get(1)));
+        assertTrue("R2 not in r0 neighbours!", neighbours.contains(regions.get(2)));
+        assertTrue("R3 not in r0 neighbours!", neighbours.contains(regions.get(3)));
+
+        // neighbours of r1
+        neighbours = neighbourGraph.get(regions.get(1));
+        assertEquals("Wrong number of r1's neighbours!", 2, neighbours.size());
+        assertTrue("R0 not in r1 neighbours!", neighbours.contains(regions.get(0)));
+        assertTrue("R2 not in r0 neighbours!", neighbours.contains(regions.get(2)));
+
+        // neighbours of r2
+        neighbours = neighbourGraph.get(regions.get(2));
+        assertEquals("Wrong number of r2's neighbours!", 4, neighbours.size());
+        assertTrue("R0 not in r2 neighbours!", neighbours.contains(regions.get(0)));
+        assertTrue("R1 not in r2 neighbours!", neighbours.contains(regions.get(1)));
+        assertTrue("R3 not in r2 neighbours!", neighbours.contains(regions.get(3)));
+        assertTrue("R4 not in r2 neighbours!", neighbours.contains(regions.get(4)));
+
+        // neighbours of r3
+        neighbours = neighbourGraph.get(regions.get(3));
+        assertEquals("Wrong number of r3's neighbours!", 3, neighbours.size());
+        assertTrue("R0 not in r3 neighbours!", neighbours.contains(regions.get(0)));
+        assertTrue("R2 not in r3 neighbours!", neighbours.contains(regions.get(2)));
+        assertTrue("R4 not in r3 neighbours!", neighbours.contains(regions.get(4)));
+
+        // neighbours of r4
+        neighbours = neighbourGraph.get(regions.get(4));
+        assertEquals("Wrong number of r4's neighbours!", 2, neighbours.size());
+        assertTrue("R2 not in r4 neighbours!", neighbours.contains(regions.get(2)));
+        assertTrue("R3 not in r4 neighbours!", neighbours.contains(regions.get(3)));
+
+        for(Region r : regions) {
+            assertEquals("Free slots!", 0, r.freeSlots);
+        }
+    }
 
     @Test
     public void testRegionGrowing1() {

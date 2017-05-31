@@ -4,9 +4,7 @@ import javafx.scene.image.Image;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * A simple library class.
@@ -14,6 +12,19 @@ import java.io.IOException;
  * Created by valesz on 10.05.2017.
  */
 public class FileUtils {
+    /**
+     * Writes text to the file. File is rewritten in the process.
+     *
+     * @param file File.
+     * @param text Text to be written to file.
+     */
+    public static void writeToFile(File file, String text) throws FileNotFoundException, IOException {
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(text);
+        bw.close();
+    }
+
     /**
      * Loads a bmp image as an array of integers.
      * Note that array is in [height][width] format and contains RGB values.

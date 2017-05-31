@@ -9,6 +9,7 @@
 
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.ThresholdImageController">
     <left>
         <VBox prefWidth="300">
@@ -28,12 +29,14 @@
                 <Label  text="Automatický práh:" />
                 <Label fx:id="autoThreshold" />
             </FlowPane>
+            <Button text="Uložit údaje" onAction="#onSaveDataClick" />
             <VBox>
                 <BorderPane.margin>
                     <Insets top="30" />
                 </BorderPane.margin>
                 <Label text="Histogram:"/>
                 <Canvas fx:id="histogram" width="256" height="100"/>
+                <Button text="Uložit" onAction="#saveHistogram"/>
             </VBox>
         </VBox>
     </left>

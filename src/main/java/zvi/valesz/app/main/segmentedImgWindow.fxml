@@ -8,6 +8,7 @@
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Button?>
 <BorderPane xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.SegmentedImgWindowController">
     <left>
         <VBox prefWidth="300">
@@ -16,23 +17,29 @@
             </BorderPane.margin>
             <Label text="Data" />
             <FlowPane>
-                <Label text="Threshold:" />
+                <Label text="Rozsah barev v oblasti:" />
                 <Label fx:id="threshold"/>
             </FlowPane>
             <FlowPane>
-                <Label text="Počet regionů před narůstáním:" />
+                <Label text="Počet regionů před merge: " />
                 <Label fx:id="totalRegions"/>
             </FlowPane>
             <FlowPane>
-                <Label text="Počet regionů po narůstání:" />
+                <Label text="Počet regionů po merge: " />
                 <Label fx:id="mergedRegions"/>
             </FlowPane>
+            <FlowPane>
+                <Label text="Velikost obrázku (px): " />
+                <Label fx:id="imageSize"/>
+            </FlowPane>
+            <Button text="Uložit údaje" onAction="#onSaveDataClick" />
             <VBox>
                 <BorderPane.margin>
                     <Insets top="30" />
                 </BorderPane.margin>
                 <Label text="Histogram:"/>
                 <Canvas fx:id="histogram" width="256" height="100"/>
+                <Button text="Uložit" onAction="#saveHistogram"/>
             </VBox>
         </VBox>
     </left>

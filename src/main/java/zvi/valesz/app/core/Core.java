@@ -16,7 +16,6 @@ import java.util.*;
  *
  * Created by Zdenek Vales on 6.5.2017.
  */
-// todo: use threads
 public class Core {
 
     /**
@@ -34,19 +33,24 @@ public class Core {
 
     /**
      * Performs a merge operation over a collection of homogene regions.
-     * @param regions
-     * @return Merged regions. Each list is one independent region in image.
+     * Neighbour graph is used to decide if the two regions are neighbours or not.
+     *
+     * @param regions Regions to be merged.
+     * @param neighbourGraph Neighbour graph of input regions.
+     * @return
      */
-    public static List<MergedRegion> merge(List<Region> regions) {
+    public static List<MergedRegion> merge(List<Region> regions, Map<Region, List<Region>> neighbourGraph) {
         List<MergedRegion> mergedRegions = new ArrayList<>();
         int regCntr = 1;
+        List<Region> buffer = new LinkedList<>();
+        List<Region> tmpRegions = new ArrayList<>(regions);
 
         // merging
-        while(!regions.isEmpty()) {
-            Region r = regions.remove(0);
+        while(!tmpRegions.isEmpty()) {
+            Region r = tmpRegions.remove(0);
             MergedRegion mergedRegion = new MergedRegion(regCntr);
             regCntr++;
-            List<Region> buffer = new LinkedList<>();
+            buffer.clear();
             buffer.add(r);
 
 
@@ -55,14 +59,14 @@ public class Core {
             while(!buffer.isEmpty()) {
                 // take region from buffer
                 Region bufferR = buffer.remove(0);
-                Iterator<Region> regIt = regions.iterator();
 
                 // go through remaining regions and add neighbours that can be merged to the buffer
-                while(regIt.hasNext()) {
-                    Region tmp = regIt.next();
-                    if(bufferR.isNeighbour(tmp) && bufferR.canMerge(tmp)) {
-                        buffer.add(tmp);
-                        regIt.remove();
+                List<Region> neighbours = neighbourGraph.get(bufferR);
+                for(Region neighbour : neighbours) {
+                    // neighbour must be in the region list also
+                    if(bufferR.canMerge(neighbour) && tmpRegions.contains(neighbour)) {
+                        buffer.add(neighbour);
+                        tmpRegions.remove(neighbour);
                     }
                 }
 
@@ -75,6 +79,54 @@ public class Core {
         }
 
         return mergedRegions;
+    }
+
+    /**
+     * Performs a merge operation over a collection of homogene regions.
+     * @param regions
+     * @return Merged regions. Each list is one independent region in image.
+     */
+    public static List<MergedRegion> merge(List<Region> regions) {
+        Map<Region, List<Region>> neighbourGraph = findNeighbours(regions);
+        return merge(regions, neighbourGraph);
+//        List<MergedRegion> mergedRegions = new ArrayList<>();
+//        int regCntr = 1;
+//        List<Region> buffer = new LinkedList<>();
+//
+//        // merging
+//        while(!regions.isEmpty()) {
+//            Region r = regions.remove(0);
+//            MergedRegion mergedRegion = new MergedRegion(regCntr);
+//            regCntr++;
+//            buffer.clear();
+//            buffer.add(r);
+//
+//
+//            // for every unmarked region of the list, go through it's neighbours
+//            // and check if they can be merged together
+//            while(!buffer.isEmpty()) {
+//                // take region from buffer
+//                Region bufferR = buffer.remove(0);
+//                Iterator<Region> regIt = regions.iterator();
+//
+//                // go through remaining regions and add neighbours that can be merged to the buffer
+//                while(regIt.hasNext()) {
+//                    Region tmp = regIt.next();
+//                    if(bufferR.isNeighbour(tmp) && bufferR.canMerge(tmp)) {
+//                        buffer.add(tmp);
+//                        regIt.remove();
+//                    }
+//                }
+//
+//                // add item from buffer to the result region list
+//                mergedRegion.add(bufferR);
+//            }
+//
+//            // add merged region to result list
+//            mergedRegions.add(mergedRegion);
+//        }
+//
+//        return mergedRegions;
     }
 
     /**
@@ -155,6 +207,53 @@ public class Core {
     }
 
     /**
+     * Constructs a neighbour graph for regions.
+     * @param regions
+     * @return
+     */
+    public static Map<Region, List<Region>> findNeighbours(List<Region> regions) {
+        Map<Region, List<Region>> neighbourGraph = new HashMap<>();
+
+        // use temp list so the original one isn't modified.
+        List<Region> tmpRegions = new ArrayList<>(regions);
+        Iterator<Region> regIt = tmpRegions.iterator();
+        while(regIt.hasNext()) {
+            Region r = regIt.next();
+            if(!neighbourGraph.containsKey(r)) {
+                neighbourGraph.put(r, new ArrayList<>());
+            }
+
+            if(r.freeSlots > 0) {
+                // free slots are points which can touch other regions
+
+                // find neighbours of r
+                for (Region tmp : tmpRegions) {
+                    if(r.equals(tmp)) {
+                        continue;
+                    }
+
+                    // neighbour
+                    // add entry also for tmp
+                    int adjPoints = r.calculateAdjacentPoints(tmp);
+                    if(adjPoints > 0) {
+                        neighbourGraph.get(r).add(tmp);
+                        if(!neighbourGraph.containsKey(tmp)) {
+                            neighbourGraph.put(tmp, new ArrayList<>());
+                        }
+                        neighbourGraph.get(tmp).add(r);
+                        r.freeSlots -= adjPoints;
+                        tmp.freeSlots -= adjPoints;
+                    }
+                }
+            }
+
+            regIt.remove();
+        }
+
+        return neighbourGraph;
+    }
+
+    /**
      * Converts image to greyscale, int[][] array and performs split operation.
      * This method is more suitable for usage with threads than performRegionGrowing.
      *
@@ -174,6 +273,19 @@ public class Core {
         statistics.put(Statistics.TOTAL_REGIONS_COUNT, regions.size());
 
         return regions;
+    }
+
+    /**
+     * Performs the growing operation over split regions.
+     * @param splitRegions List of split regions to be merged.
+     * @param statistics Object for saving statistics data.
+     * @return List of merged regions.
+     */
+    public static List<MergedRegion> performGrowing(List<Region> splitRegions, Map<Region, List<Region>> neighbourGraph, Statistics statistics) {
+        List<MergedRegion> mergedRegions = merge(splitRegions, neighbourGraph);
+        statistics.put(Statistics.MERGED_REGIONS_COUNT, mergedRegions.size());
+
+        return mergedRegions;
     }
 
     /**

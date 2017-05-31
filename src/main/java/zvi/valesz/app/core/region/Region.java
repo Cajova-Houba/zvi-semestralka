@@ -27,6 +27,16 @@ public class Region {
     public final int neighbours = Constants.NEIGHBOURS_4;
 
     /**
+     * Perimeter of this region.
+     */
+    public final int perimeter;
+
+    /**
+     * Number of free slots for region to have neighbours.
+     */
+    public int freeSlots;
+
+    /**
      * Minimum value of this region.
      */
     public int minVal;
@@ -65,8 +75,10 @@ public class Region {
         this.height = height;
         this.image = image;
         this.threshold = threshold;
+        this.perimeter = 2*width + 2*height;
 
         calculateMinMax();
+        calculateFreeSlots();
     }
 
     /**
@@ -80,6 +92,33 @@ public class Region {
      */
     public Region(int startX, int startY, int width, int height, int[][] image) {
         this(startX, startY, width, height, image, DEFAULT_THRESHOLD);
+    }
+
+    private void calculateFreeSlots() {
+        // number of free slots on each side
+        int r = 0, l = 0, t = 0, b = 0;
+
+        // region isn't on the left edge of the image
+        if(startX > 0) {
+            l = height;
+        }
+
+        // region isn't on the right edge of the image
+        if((startX+width) < image[0].length) {
+            r = height;
+        }
+
+        // region isn't on the top edge of the image
+        if(startY > 0) {
+            t = width;
+        }
+
+        // region isn't on the bottom edge of the image
+        if((startY+height) < image.length) {
+            b = width;
+        }
+
+        freeSlots = r+l+t+b;
     }
 
     private void calculateMinMax() {
@@ -100,6 +139,55 @@ public class Region {
 
         maxVal = maxTmp;
         minVal = minTmp;
+    }
+
+    /**
+     * Number of adjacent points of this region and other regions.
+     * @param region Other region.
+     * @return
+     */
+    public int calculateAdjacentPoints(Region region) {
+        int adjacentPoints = 0;
+
+        boolean topBottom = (
+                (startX <= region.startX && region.startX < startX+width) ||
+                        (region.startX <= startX && startX < region.startX+region.width)) && (
+                (startY - region.startY == region.height)
+                        || (region.startY - startY == height)
+        );
+        boolean leftRight = (
+                (startY <= region.startY && region.startY < startY+height) ||
+                        (region.startY <= startY && startY < region.startY+region.height)) && (
+                (startX - region.startX == region.width)
+                        || (region.startX - startX == width)
+        );
+
+        // regions are touching on topBottom
+        if(topBottom) {
+            // length of the line from the leftmost point of two regions to the rightmost point of two regions
+            int l = Math.max(startX+width, region.startX + region.width) - Math.min(startX, region.startX);
+
+            // vertical distance between startX points of regions
+            int leftBox = Math.abs(startX-region.startX);
+
+            // vertical distance between end points of regions
+            int rightBox = Math.abs(startX+width - region.startX-region.width);
+
+            adjacentPoints = l - leftBox - rightBox;
+        } else if (leftRight) {
+            // length of the line from the topmost point of two regions to the bottommost point of two regions
+            int l = Math.max(startY+height, region.startY+region.height) - Math.min(startY, region.startY);
+
+            // horizontal distance between startY points of regions
+            int topBox = Math.abs(startY - region.startY);
+
+            // horizontal distance between end points of regions
+            int bottomBox = Math.abs(startY+height - region.startY - region.height);
+
+            adjacentPoints = l - topBox - bottomBox;
+        }
+
+        return adjacentPoints;
     }
 
     /**
@@ -192,20 +280,7 @@ public class Region {
      * @return True or false.
      */
     private boolean isNeighbour4(Region region) {
-        boolean topBottom = (
-                (startX <= region.startX && region.startX < startX+width) ||
-                        (region.startX <= startX && startX < region.startX+region.width)) && (
-                (startY - region.startY == region.height)
-                        || (region.startY - startY == height)
-        );
-        boolean leftRight = (
-                (startY <= region.startY && region.startY < startY+height) ||
-                        (region.startY <= startY && startY < region.startY+region.height)) && (
-                (startX - region.startX == region.width)
-                        || (region.startX - startX == width)
-        );
-
-        return topBottom || leftRight;
+        return calculateAdjacentPoints(region) > 0;
     }
 
     /**

@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
 <BorderPane fx:id="rootPane" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="zvi.valesz.app.main.HistogramController">
     <center>
         <VBox>
@@ -13,6 +14,7 @@
             </BorderPane.margin>
             <Label text="Histogram:"/>
             <Canvas fx:id="histogram" width="256" height="100"/>
+            <Button text="Uložit" onAction="#saveHistogram"/>
         </VBox>
     </center>
 </BorderPane>
