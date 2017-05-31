@@ -51,8 +51,9 @@
                  <RadioButton fx:id="autoThreshRadio" selected="true" text="Automatický práh" toggleGroup="$manThreshGroup"/>
                  <RadioButton fx:id="manualThreshRadio" text="Zadané prahy" toggleGroup="$manThreshGroup" />
                  <FlowPane>
-                    <ListView fx:id="thresholdView" maxHeight="100" maxWidth="200" prefHeight="100" prefWidth="200" />
-                    <Button disable="true" text="-" />
+                     <ListView fx:id="thresholdView" maxHeight="100" maxWidth="200" prefHeight="100" prefWidth="200">
+                     </ListView>
+                    <Button text="-" onAction="#onRemoveThresholdClick"/>
                  </FlowPane>
                  <FlowPane>
                      <Label text="Práh: " />

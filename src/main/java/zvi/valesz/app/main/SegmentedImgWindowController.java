@@ -45,6 +45,14 @@ public class SegmentedImgWindowController extends BaseOutputController {
         saveImage(image, statistics, owner);
     }
 
+    public void onSaveOutputClick() {
+        Image image = segmentedImageView.getImage();
+        Window owner = histogram.getScene().getWindow();
+        Statistics statistics = new Statistics();
+        statistics.put(Statistics.INPUT_IMAGE_FORMAT, Constants.BMP_EXT);
+        saveImage(image, statistics, owner);
+    }
+
     public void onSaveDataClick() {
         StringBuilder sb = new StringBuilder();
         sb.append("Rozsah barev v oblasti: ").append(threshold.getText()).append("\n");

@@ -6,7 +6,7 @@ package zvi.valesz.app.core;
  *
  * Created by Zdenek Vales on 28.5.2017.
  */
-public class Threshold {
+public class Threshold implements Comparable<Threshold> {
 
     public final int threshold;
 
@@ -25,4 +25,16 @@ public class Threshold {
                 '}';
     }
 
+    @Override
+    public int compareTo(Threshold o) {
+        if(threshold == o.threshold) {
+            return  0;
+        }
+
+        if(threshold < o.threshold) {
+            return  -1;
+        }
+
+        return 1;
+    }
 }

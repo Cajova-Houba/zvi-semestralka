@@ -47,7 +47,7 @@ public class Controller {
     private TextField threshVal;
 
     @FXML
-    private ListView thresholdView;
+    private ListView<Threshold> thresholdView;
 
     @FXML
     private RadioButton autoThreshRadio;
@@ -80,6 +80,18 @@ public class Controller {
 
 
     private Thread segmentationThread;
+
+    public void onRemoveThresholdClick() {
+        int i = thresholdView.getSelectionModel().getSelectedIndex();
+        if(i < 0) {
+            displayFeedbackMessage("Není vybrán žádný práh.");
+            return;
+        }
+
+        Threshold t = thresholdView.getSelectionModel().getSelectedItem();
+        thresholdMap.remove(t.threshold);
+        thresholdView.setItems(FXCollections.observableList(new ArrayList<>(thresholdMap.values())));
+    }
 
     public void onStopSegmentationClick() {
         stopSegmentationThread();

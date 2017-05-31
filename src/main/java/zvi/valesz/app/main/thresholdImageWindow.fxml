@@ -49,6 +49,7 @@
             <ScrollPane fx:id="imageContainer" hmax="300.0" vmax="300.0" VBox.vgrow="SOMETIMES">
                 <ImageView fx:id="thresholdImageView" />
             </ScrollPane>
+            <Button text="Uložit výsledek" onAction="#onSaveOutputClick"/>
         </VBox>
     </center>
 </BorderPane>
